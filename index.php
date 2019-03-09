@@ -2,13 +2,25 @@
 require 'vendor/autoload.php';
 require 'config.php';
 
+if (PHP_SAPI == 'cli-server') {
+  $_SERVER['SCRIPT_NAME'] = '/index.php';
+}
+
 $dbname = $config['db_name'];
 $dbuser = $config['db_user'];
 $dbpass = $config['db_pass'];
+$dbhost = $config['db_host'];
 
-$db = new PDO("mysql:dbname=$dbname;host=localhost", $dbuser, $dbpass);
+$db = new PDO("mysql:dbname=$dbname;host=$dbhost", $dbuser, $dbpass);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 $app = new Slim\App();
+$app->add(new \Slim\Middleware\Session([
+  'name' => 'login',
+  'autorefresh' => true,
+  'lifetime' => '1 hour'
+]));
+
+$container = $app->getContainer();
 
 function getUser($user) {
   global $db;
@@ -18,88 +30,35 @@ function getUser($user) {
   return $r;
 }
 
-$app->get('/.well-known/webfinger', function ($request, $response, $args) {
+$container['getUser'] = function($u) {
+  return getUser;
+};
+$container['host'] = function () {
+  return $_SERVER['HTTP_HOST'];
+};
+$container['db'] = function () {
   global $db;
-  $resource = $request->getQueryParam('resource');
-  list($scheme, $account) = explode(':', $resource);
-  list($user, $domain) = explode('@', $account);
+  return $db;
+};
+$container['session'] = function ($c) {
+  return new \SlimSession\Helper;
+};
 
-  $username = getUser($user)[0];
-  $profile = 'http://mb.mrkiddle.co.uk/user/'.$username;
-  $json = array(
-    'subject' => $resource,
-    'aliases' => [$profile],
-    'links' => [
-      [
-        'rel' => "self",
-        'type' => 'application/activity+json',
-        'href' => $profile
-      ]
-    ]
-  );
-  return $response->withJson($json);
-});
+$app->get('/.well-known/webfinger', \Art\Webfinger::class);
 
-$app->get('/user/{id}', function($req, $res, $args) {
-  $user = getUser($args['id'])[0];
-  $json = array(
-    '@context' => [
-      "https://www.w3.org/ns/activitystreams",
-      "https://w3id.org/security/v1"
-    ],
-    "id" => "http://mb.mrkiddle.co.uk/user/$user",
-    "type" => "Person",
-    "preferredUsername" => $user,
-    "inbox" => "http://mb.mrkiddle.co.uk/user/$user/inbox"
-/*    "publicKey" => [
-      "id" => "https://mb.mrkiddle.co.uk/user/$user#main-key",
-      "owner" => "https://mb.mrkiddle.co.uk/user/$user",
- */
-  );
-  return $res->withJson($json);
-});
+$app->get('/user/{id}', \Art\User::class);
 
-$app->any('/', function () {
-  global $db;
-  if(isset($_POST['submit'])){
-    $user = getUser($_POST['username']);
-    if($user) {
-      if(password_verify($_POST['password'], $user['password'])) {
-	echo 'Correct';
-      } else {
-        echo 'Wrong';
-      }
-      die;
-    }
-    $q = $db->prepare("INSERT INTO user (username, password) VALUES(?, ?)");
-    $r = $q->execute(array(
-      $_POST['username'],
-      password_hash($_POST['password'], PASSWORD_DEFAULT)
-    ));
-    if($r) {
-      header("location: /"); die;
-    } else {
-      print_r($q->errorInfo());
-    }
+$app->any('/upload', \Art\Upload::class);
+
+$app->any('/', \Art\Index::class);
+
+
+$app->get('/uploads/[{path:.*}]', function ($request, $response) {
+  $file = __DIR__ . $request->getUri()->getPath();
+  if(file_exists($file)) {
+    $response = $response->withHeader('content-type', mime_content_type($file));
+    return $response->write(file_get_contents($file));
   }
-?>
-<form method="POST">
-  <label>Username <input name="username"></label><br>
-  <label>Password <input type="password" name="password"></label>
-  <button name="submit">Sign up</button>
-</form>
-
-<ol>
-  <li>Login
-  <li>Upload
-  <li>View Profile/Gallery
-  <li>Follow from remote
-  <li>Local follow
-  <li>Follow remote
-  <li>User roles
-  <li>Moderation
-</ol>
-<?php
 });
 
 $app->run();

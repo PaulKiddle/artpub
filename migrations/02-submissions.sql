@@ -1,0 +1,7 @@
+CREATE TABLE submission (
+  id INT AUTO_INCREMENT,
+  author_id INT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  file VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id)
+);
