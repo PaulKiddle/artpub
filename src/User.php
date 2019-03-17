@@ -2,9 +2,10 @@
 namespace Art;
 
 class User extends Route {
-  function __invoke ($req, $res, $args) {
-    $user = $this->container['getUser']($args['id'])['username'];
-    $host = $this->container->host;
+  function view ($req, $res, $args) {
+    $user = $this->user;
+    $host = $this->host;
+
     $json = array(
       '@context' => [
         "https://www.w3.org/ns/activitystreams",

@@ -11,6 +11,20 @@ $dbuser = $config['db_user'];
 $dbpass = $config['db_pass'];
 $dbhost = $config['db_host'];
 
+use Illuminate\Database\Capsule\Manager as Capsule;
+
+$capsule = new Capsule;
+
+$capsule->addConnection([
+  'driver'    => 'mysql',
+  'host'      => $dbhost,
+  'database'  => $dbname,
+  'username'  => $dbuser,
+  'password'  => $dbpass,
+  'charset'   => 'utf8mb4'
+]);
+$capsule->bootEloquent();
+
 $db = new PDO("mysql:dbname=$dbname;host=$dbhost", $dbuser, $dbpass);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 $app = new Slim\App();
@@ -22,17 +36,6 @@ $app->add(new \Slim\Middleware\Session([
 
 $container = $app->getContainer();
 
-function getUser($user) {
-  global $db;
-  $q = $db->prepare("SELECT * FROM user WHERE username = ?");
-  $q->execute(array($user));
-  $r = $q->fetch();
-  return $r;
-}
-
-$container['getUser'] = function($u) {
-  return getUser;
-};
 $container['host'] = function () {
   return $_SERVER['HTTP_HOST'];
 };
@@ -47,6 +50,8 @@ $container['session'] = function ($c) {
 $app->get('/.well-known/webfinger', \Art\Webfinger::class);
 
 $app->get('/user/{id}', \Art\User::class);
+
+$app->get('/gallery/{id}', \Art\Gallery::class);
 
 $app->any('/upload', \Art\Upload::class);
 

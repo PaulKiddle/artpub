@@ -7,7 +7,7 @@ class Webfinger extends Route {
     list($scheme, $account) = explode(':', $resource);
     list($user, $domain) = explode('@', $account);
 
-    $username = $this->container['getUser']($user)['username'];
+    $username = \Art\models\User::where('username', [$user])->first()['username'];
     $host = $this->container['host'];
     $profile = "http://$host/user/$username";
     $json = array(

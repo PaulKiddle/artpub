@@ -7,7 +7,7 @@ class Index extends Route {
     $db = $this->container['db'];
     $errors = [];
 
-    $user = getUser($_POST['username']);
+    $user = \Art\models\User::where('username', $_POST['username'])->first();
     if($user) {
       if(password_verify($_POST['password'], $user['password'])) {
         $this->session['user'] = $user;
@@ -77,10 +77,11 @@ HTML;
   $r
 
   <ol>
-    <li>View Profile/Gallery
     <li>Follow from remote
     <li>Local follow
     <li>Follow remote
+    <li>Remove PDO db
+    <li>Templates
     <li>User roles
     <li>Moderation
   </ol>
