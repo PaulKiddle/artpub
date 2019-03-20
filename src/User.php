@@ -3,7 +3,7 @@ namespace Art;
 
 class User extends Route {
   function view ($req, $res, $args) {
-    $user = $this->user;
+    $user = \Art\models\User::where('username', $args['id'])->first()->username;
     $host = $this->host;
 
     $json = array(
@@ -16,6 +16,7 @@ class User extends Route {
       "preferredUsername" => $user,
       "inbox" => "http://$host/user/$user/inbox"
     );
+
     return $res->withJson($json);
   }
 }

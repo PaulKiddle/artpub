@@ -52,6 +52,7 @@ $app->get('/.well-known/webfinger', \Art\Webfinger::class);
 $app->get('/user/{id}', \Art\User::class);
 
 $app->get('/gallery/{id}', \Art\Gallery::class);
+$app->post('/user/{id}/inbox', \Art\Inbox::class);
 
 $app->any('/upload', \Art\Upload::class);
 

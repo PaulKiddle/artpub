@@ -78,12 +78,31 @@ HTML;
 
   <ol>
     <li>Follow from remote
-    <li>Local follow
+    <ul>
+      <li>Create inbox route
+      <li>Create subscribers table
+      <li>Process follow activity, insert into subscriptions
+      <li>Send accept activity
+      <li>Send create activity on upload
+    </ul>
     <li>Follow remote
+    <ul>
+      <li>Create subscribees table
+      <li>Resolve webfinger
+      <li>Send follow activity
+      <li>Insert into table as pending
+      <li>Process accept activity
+      <li>Update pending to following
+      <li>Create inbox table
+      <li>Process create activities
+      <li>Insert into inbox table
+      <li>Create inbox view
+    </ul>
     <li>Remove PDO db
     <li>Templates
     <li>User roles
     <li>Moderation
+    <li>Local follow
   </ol>
 HTML;
     return $response->write($output);

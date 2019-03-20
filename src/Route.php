@@ -28,6 +28,6 @@ class Route {
       }
     }
 
-    $this->view($request, $response, $args);
+    return $this->view($request, $response, $args);
   }
 }
