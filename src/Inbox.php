@@ -27,8 +27,7 @@ class Inbox extends Route {
     $actor = json_decode(file_get_contents($key_id, false, stream_context_create($get_opts)), true);
     $key = $actor['publicKey']['publicKeyPem'];
     $comparison_string = implode("\n", array_map(
-      function($signature_header_name) use($req) {
-        global $user_id;
+      function($signature_header_name) use($req, $user_id) {
         if($signature_header_name === '(request-target)') {
           return "(request-target): post /user/$user_id/inbox";
         } else {
@@ -37,6 +36,8 @@ class Inbox extends Route {
       },
       explode(' ', $headers)
     ));
+
+error_log($comparison_string);
 
     if(!openssl_verify($comparison_string, $signature, $key, OPENSSL_ALGO_SHA256)) {
       error_log("Bad donkey!");
