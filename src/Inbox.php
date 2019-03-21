@@ -37,15 +37,18 @@ class Inbox extends Route {
       explode(' ', $headers)
     ));
 
-error_log($comparison_string);
+    error_log($comparison_string);
 
     if(!openssl_verify($comparison_string, $signature, $key, OPENSSL_ALGO_SHA256)) {
-      error_log("Bad donkey!");
-    } else {
-      error_log("Good donkey!");
+      return $res->withStatus(401);
     }
 
     $user = \Art\models\User::where('username', $user_id)->first();
+
+    if(!$user->public_key) {
+      $user->generateKeypair()->save();
+    }
+
     $json = $req->getBody();
     $data = json_decode($json, true);
 
@@ -55,9 +58,39 @@ error_log($comparison_string);
 
     switch($type){
       case 'follow':
-        # $inbox = $actor['inbox']
-        # Add inbox to subscribers db
-        # Send Accept to $inbox
+        \Art\models\Subscriber::create([
+          'url' => $actor['id'],
+          'inbox' => $actor['inbox'],
+          'user_id' => $user->id
+        ]);
+
+        $privKey = $user->private_key;
+
+        $requestTarget = "post " . parse_url($actor['inbox'], PHP_URL_PATH);
+        $host = parse_url($url, PHP_URL_HOST);
+        $date = gmdate('D, d M Y H:i:s T');
+
+        $sign_string = "(request-target): $requestTarget\nhost: $host\ndate:$date";
+        openssl_sign($sign_string, $signature, $privKey);
+        $signHeader = "keyId=\"https://$this->host/user/$user->username\",headers=\"(request-target) host date\",signature=\"$signature\"";
+
+        $r = new HttpRequest($actor['inbox'], HttpRequest::METH_POST);
+        $r->setHeaders([
+          "host" => $host,
+          "date" => $date,
+          "signature" => $signHeader
+        ]);
+        $r->setBody(json_encode([
+          "@context" => "https://www.w3.org/ns/activitystreams",
+          "id" => "https://$this->host/$date",
+          "type" => "Accept",
+          "object" => $data['id']
+        ]));
+        try {
+          echo $r->send()->getBody();
+        } catch (HttpException $ex) {
+          echo $ex;
+        }
     }
 
     return $res->withStatus(501);
