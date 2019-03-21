@@ -2,6 +2,48 @@
 
 namespace Art\models;
 
+function verify_sig($signature, $r_headers, $request_target){
+    error_log('');
+    $signature_header = [];
+
+    foreach(explode(',', $signature) as $pair) {
+      list($key, $value) = explode('=', $pair);
+      $signature_header[trim($key, '"')] = trim($value, '"');
+    }
+
+    error_log(print_r($signature_header, true));
+
+    $key_id = $signature_header['keyId'];
+    $headers = $signature_header['headers'];
+    $signature = base64_decode($signature_header['signature']);
+
+    $get_opts = array(
+      'http'=>array(
+        'method'=>"GET",
+        'header'=>"Accept: application/json\r\n"
+      )
+    );
+    $actor = json_decode(file_get_contents($key_id, false, stream_context_create($get_opts)), true);
+    $key = $actor['publicKey']['publicKeyPem'];
+    $comparison_string = implode("\n", array_map(
+      function($signature_header_name) use($r_headers, $request_target) {
+        if($signature_header_name === '(request-target)') {
+          return "(request-target): post $request_target";
+        } else {
+          return $signature_header_name . ": " . $r_headers[$signature_header_name];
+        }
+      },
+      explode(' ', $headers)
+    ));
+
+    error_log($comparison_string);
+    error_log($signature);
+    error_log($key);
+
+    return openssl_verify($comparison_string, $signature, $key, OPENSSL_ALGO_SHA256);
+}
+
+
 class User extends \Illuminate\Database\Eloquent\Model {
   protected $table = 'user';
   public $timestamps = false;
@@ -39,8 +81,8 @@ class User extends \Illuminate\Database\Eloquent\Model {
 
   public function send($activity, $inbox) {
     // TODO: Remove this
-    if(!$user->public_key) {
-      $user->generateKeypair()->save();
+    if(!$this->public_key) {
+      $this->generateKeypair()->save();
     }
 
     $privKey = $this->private_key;
@@ -50,26 +92,35 @@ class User extends \Illuminate\Database\Eloquent\Model {
     $host = parse_url($inbox, PHP_URL_HOST);
     $date = gmdate('D, d M Y H:i:s T');
 
-    $sign_string = "(request-target): $requestTarget\nhost: $host\ndate:$date";
-    openssl_sign($sign_string, $signature, $privKey);
+    $sign_string = "(request-target): $requestTarget\nhost: $host\ndate: $date";
+    openssl_sign($sign_string, $signature, $privKey, OPENSSL_ALGO_SHA256);
+    error_log('SIGNED:');
+    error_log($signature);
+    error_log(openssl_verify($sign_string, $signature, $this->public_key, OPENSSL_ALGO_SHA256));
+    $signature = base64_encode($signature);
     $signHeader = "keyId=\"https://$httpHost/user/$this->username\",headers=\"(request-target) host date\",signature=\"$signature\"";
 
-    $r = new HttpRequest($inbox, HttpRequest::METH_POST);
-    $r->setHeaders([
-      "host" => $host,
-      "date" => $date,
-      "signature" => $signHeader
-    ]);
-    $r->setBody(json_encode($activity));
-    try {
-      echo $r->send()->getBody();
-    } catch (HttpException $ex) {
-      echo $ex;
-    }
+    $headers = [
+      "host" => "$host",
+      "date" => "$date",
+      "signature" => "$signHeader"
+    ];
+    error_log(print_r($headers,true));
+    $body = json_encode($activity);
+
+    $client = new \GuzzleHttp\Client();
+    error_log(verify_sig($signHeader, $headers, parse_url($inbox, PHP_URL_PATH)));
+
+    $res = $client->request('POST', $inbox, ['body' => $body, 'headers' => $headers, 'debug'=>true]);
+    error_log($res->getBody());
+    error_log($res->getStatusCode());
   }
 
   public function broadcast($activity) {
-    foreach($this->subscribers() as $subscriber) {
+    error_log('BROADCAST');
+    error_log(print_r($activity, true));
+    foreach($this->subscribers as $subscriber) {
+      error_log($subscriber->inbox);
       $this->send($activity, $subscriber->inbox);
     }
   }

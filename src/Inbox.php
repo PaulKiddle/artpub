@@ -59,16 +59,16 @@ class Inbox extends Route {
         $sub->inbox = $actor['inbox'];
         $sub->user_id = $user->id;
         $sub->save();
+        $date = time();
 
-        $user->send([
+        $r = $user->send([
           "@context" => "https://www.w3.org/ns/activitystreams",
           "id" => "https://$this->host/$date",
           "type" => "Accept",
-          "object" => $data['id']
+          "object" => $data
         ], $actor['inbox']);
     }
-
-    return $res->withStatus(501);
+    return $res->withStatus(202);
   }
 }
 /*
