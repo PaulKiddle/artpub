@@ -45,10 +45,6 @@ class Inbox extends Route {
 
     $user = \Art\models\User::where('username', $user_id)->first();
 
-    if(!$user->public_key) {
-      $user->generateKeypair()->save();
-    }
-
     $json = $req->getBody();
     $data = json_decode($json, true);
 
@@ -58,39 +54,18 @@ class Inbox extends Route {
 
     switch($type){
       case 'follow':
-        \Art\models\Subscriber::create([
-          'url' => $actor['id'],
-          'inbox' => $actor['inbox'],
-          'user_id' => $user->id
-        ]);
+        $sub = new \Art\models\Subscriber();
+        $sub->url = $actor['id'];
+        $sub->inbox = $actor['inbox'];
+        $sub->user_id = $user->id;
+        $sub->save();
 
-        $privKey = $user->private_key;
-
-        $requestTarget = "post " . parse_url($actor['inbox'], PHP_URL_PATH);
-        $host = parse_url($url, PHP_URL_HOST);
-        $date = gmdate('D, d M Y H:i:s T');
-
-        $sign_string = "(request-target): $requestTarget\nhost: $host\ndate:$date";
-        openssl_sign($sign_string, $signature, $privKey);
-        $signHeader = "keyId=\"https://$this->host/user/$user->username\",headers=\"(request-target) host date\",signature=\"$signature\"";
-
-        $r = new HttpRequest($actor['inbox'], HttpRequest::METH_POST);
-        $r->setHeaders([
-          "host" => $host,
-          "date" => $date,
-          "signature" => $signHeader
-        ]);
-        $r->setBody(json_encode([
+        $user->send([
           "@context" => "https://www.w3.org/ns/activitystreams",
           "id" => "https://$this->host/$date",
           "type" => "Accept",
           "object" => $data['id']
-        ]));
-        try {
-          echo $r->send()->getBody();
-        } catch (HttpException $ex) {
-          echo $ex;
-        }
+        ], $actor['inbox']);
     }
 
     return $res->withStatus(501);

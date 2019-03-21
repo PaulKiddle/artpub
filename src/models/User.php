@@ -10,6 +10,10 @@ class User extends \Illuminate\Database\Eloquent\Model {
     return $this->hasMany('Art\models\Submission', 'author_id');
   }
 
+  public function subscribers(){
+    return $this->hasMany('Art\models\Subscriber', 'user_id');
+  }
+
   public function generateKeypair(){
     $config = array(
       "digest_alg" => "sha256",
@@ -31,5 +35,42 @@ class User extends \Illuminate\Database\Eloquent\Model {
     $this->public_key = $pubKey;
 
     return $this;
+  }
+
+  public function send($activity, $inbox) {
+    // TODO: Remove this
+    if(!$user->public_key) {
+      $user->generateKeypair()->save();
+    }
+
+    $privKey = $this->private_key;
+    $httpHost = $_SERVER['HTTP_HOST'];;
+
+    $requestTarget = "post " . parse_url($inbox, PHP_URL_PATH);
+    $host = parse_url($inbox, PHP_URL_HOST);
+    $date = gmdate('D, d M Y H:i:s T');
+
+    $sign_string = "(request-target): $requestTarget\nhost: $host\ndate:$date";
+    openssl_sign($sign_string, $signature, $privKey);
+    $signHeader = "keyId=\"https://$httpHost/user/$this->username\",headers=\"(request-target) host date\",signature=\"$signature\"";
+
+    $r = new HttpRequest($inbox, HttpRequest::METH_POST);
+    $r->setHeaders([
+      "host" => $host,
+      "date" => $date,
+      "signature" => $signHeader
+    ]);
+    $r->setBody(json_encode($activity));
+    try {
+      echo $r->send()->getBody();
+    } catch (HttpException $ex) {
+      echo $ex;
+    }
+  }
+
+  public function broadcast($activity) {
+    foreach($this->subscribers() as $subscriber) {
+      $this->send($activity, $subscriber->inbox);
+    }
   }
 }

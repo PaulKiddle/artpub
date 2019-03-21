@@ -28,6 +28,24 @@ class Upload extends Route {
       $_POST['title'],
       $uploadfile
     ])) {
+      $domain = $this->host;
+      $guid = time();
+      $name = $this->user['username'];
+      $this->user->broadcast([
+        '@context'=>'https://www.w3.org/ns/activitystreams',
+        'id'=>"https://$domain/$guid",
+        'type'=>'Create',
+        'actor'=>"https://$domain/user/$name",
+
+        'object'=> [
+          'id'=>"https://$domain/$guid",
+          'type'=>'Note',
+          'published'=> date('c'),
+          'attributedTo'=>"https://$domain/user/$name",
+          'content'=> $_POST['title'],
+          'cc'=>'https://www.w3.org/ns/activitystreams#Public'
+        ]
+      ]);
       return $response->withRedirect('/');
     }
 
