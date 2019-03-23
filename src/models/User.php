@@ -90,7 +90,6 @@ class User extends \Illuminate\Database\Eloquent\Model {
     $body = json_encode($activity);
 
     $client = new \GuzzleHttp\Client();
-    error_log(verify_sig($signHeader, $headers, parse_url($inbox, PHP_URL_PATH)));
 
     $res = $client->request('POST', $inbox, ['body' => $body, 'headers' => $headers, 'debug'=>true]);
     error_log($res->getBody());
