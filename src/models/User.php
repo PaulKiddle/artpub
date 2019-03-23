@@ -2,48 +2,6 @@
 
 namespace Art\models;
 
-function verify_sig($signature, $r_headers, $request_target){
-    error_log('');
-    $signature_header = [];
-
-    foreach(explode(',', $signature) as $pair) {
-      list($key, $value) = explode('=', $pair);
-      $signature_header[trim($key, '"')] = trim($value, '"');
-    }
-
-    error_log(print_r($signature_header, true));
-
-    $key_id = $signature_header['keyId'];
-    $headers = $signature_header['headers'];
-    $signature = base64_decode($signature_header['signature']);
-
-    $get_opts = array(
-      'http'=>array(
-        'method'=>"GET",
-        'header'=>"Accept: application/json\r\n"
-      )
-    );
-    $actor = json_decode(file_get_contents($key_id, false, stream_context_create($get_opts)), true);
-    $key = $actor['publicKey']['publicKeyPem'];
-    $comparison_string = implode("\n", array_map(
-      function($signature_header_name) use($r_headers, $request_target) {
-        if($signature_header_name === '(request-target)') {
-          return "(request-target): post $request_target";
-        } else {
-          return $signature_header_name . ": " . $r_headers[$signature_header_name];
-        }
-      },
-      explode(' ', $headers)
-    ));
-
-    error_log($comparison_string);
-    error_log($signature);
-    error_log($key);
-
-    return openssl_verify($comparison_string, $signature, $key, OPENSSL_ALGO_SHA256);
-}
-
-
 class User extends \Illuminate\Database\Eloquent\Model {
   protected $table = 'user';
   public $timestamps = false;
@@ -56,7 +14,12 @@ class User extends \Illuminate\Database\Eloquent\Model {
     return $this->hasMany('Art\models\Subscriber', 'user_id');
   }
 
-  public function generateKeypair(){
+  protected function performInsert($q){
+    $this->generateKeypair();
+    return parent::performInsert($q);
+  }
+
+  protected function generateKeypair(){
     $config = array(
       "digest_alg" => "sha256",
       "private_key_bits" => 2048,
@@ -79,14 +42,35 @@ class User extends \Illuminate\Database\Eloquent\Model {
     return $this;
   }
 
+  function setPassword($password) {
+    $this->password = password_hash($password, PASSWORD_DEFAULT);
+  }
+
+  function checkPassword($password) {
+    return password_verify($password, $this->password);
+  }
+
+  function getUrl() {
+    $httpHost = $_SERVER['HTTP_HOST'];
+    return "https://$httpHost/user/$this->username";
+  }
+
+  function activity($type, $object) {
+    $httpHost = $_SERVER['HTTP_HOST'];
+    $guid = time();
+
+    return [
+      'id' => "https://$httpHost/$guid",
+      'type'=> $type,
+      'actor'=> $this->getUrl(),
+      'object'=> $object
+    ];
+  }
+
   public function send($activity, $inbox) {
-    // TODO: Remove this
-    if(!$this->public_key) {
-      $this->generateKeypair()->save();
-    }
+    $activity['@context'] = 'https://www.w3.org/ns/activitystreams';
 
     $privKey = $this->private_key;
-    $httpHost = $_SERVER['HTTP_HOST'];;
 
     $requestTarget = "post " . parse_url($inbox, PHP_URL_PATH);
     $host = parse_url($inbox, PHP_URL_HOST);
@@ -94,18 +78,15 @@ class User extends \Illuminate\Database\Eloquent\Model {
 
     $sign_string = "(request-target): $requestTarget\nhost: $host\ndate: $date";
     openssl_sign($sign_string, $signature, $privKey, OPENSSL_ALGO_SHA256);
-    error_log('SIGNED:');
-    error_log($signature);
-    error_log(openssl_verify($sign_string, $signature, $this->public_key, OPENSSL_ALGO_SHA256));
     $signature = base64_encode($signature);
-    $signHeader = "keyId=\"https://$httpHost/user/$this->username\",headers=\"(request-target) host date\",signature=\"$signature\"";
+    $userUrl = $this->getUrl();
+    $signHeader = "keyId=\"$userUrl\",headers=\"(request-target) host date\",signature=\"$signature\"";
 
     $headers = [
       "host" => "$host",
       "date" => "$date",
       "signature" => "$signHeader"
     ];
-    error_log(print_r($headers,true));
     $body = json_encode($activity);
 
     $client = new \GuzzleHttp\Client();
@@ -117,10 +98,7 @@ class User extends \Illuminate\Database\Eloquent\Model {
   }
 
   public function broadcast($activity) {
-    error_log('BROADCAST');
-    error_log(print_r($activity, true));
     foreach($this->subscribers as $subscriber) {
-      error_log($subscriber->inbox);
       $this->send($activity, $subscriber->inbox);
     }
   }

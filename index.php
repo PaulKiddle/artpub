@@ -25,8 +25,6 @@ $capsule->addConnection([
 ]);
 $capsule->bootEloquent();
 
-$db = new PDO("mysql:dbname=$dbname;host=$dbhost", $dbuser, $dbpass);
-$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 $app = new Slim\App();
 $app->add(new \Slim\Middleware\Session([
   'name' => 'login',
@@ -36,13 +34,6 @@ $app->add(new \Slim\Middleware\Session([
 
 $container = $app->getContainer();
 
-$container['host'] = function () {
-  return $_SERVER['HTTP_HOST'];
-};
-$container['db'] = function () {
-  global $db;
-  return $db;
-};
 $container['session'] = function ($c) {
   return new \SlimSession\Helper;
 };

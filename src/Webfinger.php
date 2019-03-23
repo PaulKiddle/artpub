@@ -8,8 +8,7 @@ class Webfinger extends Route {
     list($user, $domain) = explode('@', $account);
 
     $username = \Art\models\User::where('username', [$user])->first()['username'];
-    $host = $this->container['host'];
-    $profile = "https://$host/user/$username";
+    $profile = $user->getUrl();
     $json = array(
       'subject' => $resource,
       'aliases' => [$profile],

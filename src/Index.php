@@ -4,28 +4,30 @@ namespace Art;
 
 class Index extends Route {
   function submit ($request, $response) {
-    $db = $this->container['db'];
+    global $config;
+
     $errors = [];
 
     $user = \Art\models\User::where('username', $_POST['username'])->first();
     if($user) {
-      if(password_verify($_POST['password'], $user['password'])) {
+      if($user->checkPassword($_POST['password'])) {
         $this->session['user'] = $user;
         return $response->withRedirect($request->getUri()->getPath());
       } else {
         $errors[] = 'Incorrect username/password';
       }
-    } else {
-      $q = $db->prepare("INSERT INTO user (username, password) VALUES(?, ?)");
-      $r = $q->execute(array(
-        $_POST['username'],
-        password_hash($_POST['password'], PASSWORD_DEFAULT)
-      ));
+    } else if(!isset($config['disable_signup'])) {
+      $user = new \Art\models\User;
+      $user->username = $_POST['username'];
+      $user->setPassword($_POST['password']);
+      $r = $user->save();
       if($r) {
         return $response->withRedirect($request->getUri()->getPath());
       } else {
         $errors[] = $q->errorInfo();
       }
+    } else {
+      $errors[] = 'Incorrect username/password';
     }
 
     $this->errors = $errors;
@@ -47,12 +49,10 @@ class Index extends Route {
       $output = "<ul>$output</ul>";
     }
 
-    global $db;
-    $q = $db->prepare("SELECT * FROM submission");
-    $q->execute(array($user));
+
     $r = '';
 
-    foreach($q->fetchAll() as $row) {
+    foreach(\Art\models\Submission::all() as $row) {
       $file = $row['file'];
       $title = $row['title'];
 
@@ -77,14 +77,9 @@ HTML;
   $r
 
   <ol>
-    <li>Follow from remote
-    <ul>
-      <li>Create inbox route
-      <li>Create subscribers table
-      <li>Process follow activity, insert into subscriptions
-      <li>Send accept activity
-      <li>Send create activity on upload
-    </ul>
+    <li>Audio upload
+    <li>Broadcast images as image type
+    <li>Templates/tidy/use form helper
     <li>Follow remote
     <ul>
       <li>Create subscribees table
@@ -98,8 +93,6 @@ HTML;
       <li>Insert into inbox table
       <li>Create inbox view
     </ul>
-    <li>Remove PDO db
-    <li>Templates
     <li>User roles
     <li>Moderation
     <li>Local follow

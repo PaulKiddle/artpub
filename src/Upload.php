@@ -21,31 +21,26 @@ class Upload extends Route {
     $uploadfile =  time() . '-' . basename($_FILES['file']['name']);
     move_uploaded_file($_FILES['file']['tmp_name'], $uploaddir . $uploadfile);
 
-    $q = $this->db->prepare("INSERT INTO submission (author_id, title, file) VALUES(?, ?, ?)");
+    $sub = new \Art\models\Submission();
+    $sub->author_id = $this->user['id'];
+    $sub->title = $_POST['title'];
+    $sub->file = $uploadfile;
 
-    if ($q->execute([
-      $this->user['id'],
-      $_POST['title'],
-      $uploadfile
-    ])) {
-      $domain = $this->host;
+    if ($sub->save()) {
       $guid = time();
-      $name = $this->user['username'];
-      $this->user->broadcast([
-        '@context'=>'https://www.w3.org/ns/activitystreams',
-        'id'=>"https://$domain/$guid",
-        'type'=>'Create',
-        'actor'=>"https://$domain/user/$name",
+      $domain = $_SERVER['HTTP_HOST'];
 
-        'object'=> [
+      $name = $this->user['username'];
+      $this->user->broadcast($this->user->activity('Create',
+        [
           'id'=>"https://$domain/$guid",
           'type'=>'Note',
           'published'=> date('c'),
-          'attributedTo'=>"https://$domain/user/$name",
+          'attributedTo' => $this->user->getUrl(),
           'content'=> $_POST['title'],
           'cc'=>'https://www.w3.org/ns/activitystreams#Public'
         ]
-      ]);
+      ));
       return $response->withRedirect('/');
     }
 

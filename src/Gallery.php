@@ -4,7 +4,6 @@ namespace Art;
 class Gallery extends Route {
   function view ($req, $res, $args) {
     $user = $this->user;
-    $host = $this->host;
 
     $output = '';
 
