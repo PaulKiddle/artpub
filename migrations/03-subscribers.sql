@@ -4,8 +4,8 @@ CREATE TABLE IF NOT EXISTS subscriber (
   inbox varchar(255) NOT NULL,
   user_id INT NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY (id, url)
+  UNIQUE KEY (user_id, url)
 );
 
 DROP INDEX url ON subscriber;
-ALTER TABLE subscriber ADD CONSTRAINT UNIQUE (id, url);
+ALTER TABLE subscriber ADD CONSTRAINT UNIQUE (user_id, url);
