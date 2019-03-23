@@ -36,26 +36,19 @@ class Upload extends Route {
 
       $object = [
         'id' => $sub->getUrl(),
-        'type'=> ucfirst($type),
+        'type'=> 'Note',
         'published'=> date('c'),
         'attributedTo' => $this->user->getUrl(),
-        'content'=> $_POST['title'],
-        'cc'=>'https://www.w3.org/ns/activitystreams#Public',
+        'content'=> $sub->description,
+        'to'=>'https://www.w3.org/ns/activitystreams#Public',
         'name' => $sub->title,
-        'url' => [
-          [
-            'type' => 'Link',
-            'href' => "https://$domain/$uploaddir".$uploadfile,
+        'attachment' => [
+            'type' => 'Document', //ucfirst($type),
+            'url' => "https://$domain/$uploaddir".$uploadfile,
             'mediaType' => $mimeType,
-            'rel' => 'self'
-          ],
-          [
-            'type' => 'Link',
-            'href' => $sub->getUrl(),
-            'mediaType' => 'text/html',
-            'rel' => 'describedby'
-          ]
-        ]
+            'name' => $sub->title
+        ],
+        'url' => $sub->getUrl()
       ];
 
       $name = $this->user['username'];
