@@ -12,8 +12,11 @@ class Upload extends Route {
   }
 
   function submit($request, $response) {
-    if(exif_imagetype($_FILES['file']['tmp_name']) === false) {
-      $this->errors[] = 'The uploaded file is not a valid image file';
+    $mimeType = mime_content_type($_FILES['file']['tmp_name']);
+    $type = explode('/', $mimeType)[0];
+
+    if(!in_array($type, ['image', 'audio'])) {
+      $this->errors[] = "The uploaded file is $mimeType ($type), which is not allowed.";
       return;
     }
 
@@ -25,22 +28,38 @@ class Upload extends Route {
     $sub->author_id = $this->user['id'];
     $sub->title = $_POST['title'];
     $sub->file = $uploadfile;
+    $sub->type = $type;
+    $sub->description = $_POST['description'];
 
     if ($sub->save()) {
-      $guid = time();
       $domain = $_SERVER['HTTP_HOST'];
 
-      $name = $this->user['username'];
-      $this->user->broadcast($this->user->activity('Create',
-        [
-          'id'=>"https://$domain/$guid",
-          'type'=>'Note',
-          'published'=> date('c'),
-          'attributedTo' => $this->user->getUrl(),
-          'content'=> $_POST['title'],
-          'cc'=>'https://www.w3.org/ns/activitystreams#Public'
+      $object = [
+        'id' => $sub->getUrl(),
+        'type'=> ucfirst($type),
+        'published'=> date('c'),
+        'attributedTo' => $this->user->getUrl(),
+        'content'=> $_POST['title'],
+        'cc'=>'https://www.w3.org/ns/activitystreams#Public',
+        'name' => $sub->title,
+        'url' => [
+          [
+            'type' => 'Link',
+            'href' => "https://$domain/$uploaddir".$uploadfile,
+            'mediaType' => $mimeType,
+            'rel' => 'self'
+          ],
+          [
+            'type' => 'Link',
+            'href' => $sub->getUrl(),
+            'mediaType' => 'text/html',
+            'rel' => 'describedby'
+          ]
         ]
-      ));
+      ];
+
+      $name = $this->user['username'];
+      $this->user->broadcast($this->user->activity('Create', $object));
       return $response->withRedirect('/');
     }
 
@@ -62,6 +81,7 @@ class Upload extends Route {
       <form enctype="multipart/form-data" method="POST">
         <input type="file" name="file"><br>
         <input name="title"><br>
+        <textarea name="description"></textarea>
         <button name="submit">Upload</button>
       </form>
 HTML;

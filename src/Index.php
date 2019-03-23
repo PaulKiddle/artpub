@@ -55,11 +55,23 @@ class Index extends Route {
     foreach(\Art\models\Submission::all() as $row) {
       $file = $row['file'];
       $title = $row['title'];
+      switch($row['type']){
+        case 'image':
+          $thumb = "<img src=\"/uploads/$file\">";
+          break;
+        case 'audio':
+          $thumb = "<img alt=\"Audio file\">";
+          break;
+        default:
+          $thumb = "<img alt=\"???\">";
+          break;
+      }
 
       $r .= <<<HTML
         <div>
-          <h2>$title</h2>
-          <img src="/uploads/$file">
+          <h2><a href="{$row->getUrl()}">$title</a></h2>
+          <p>{$row->artist()->first()->username}</p>
+          $thumb
         </div>
 HTML;
 
@@ -77,9 +89,10 @@ HTML;
   $r
 
   <ol>
-    <li>Audio upload
-    <li>Broadcast images as image type
-    <li>Templates/tidy/use form helper
+    <li>Allow url slugs
+    <li>Improve submission page html
+    <li>Broadcast creates as correct object type
+    <li>Templates: sanitize, tidy, use form helper
     <li>Follow remote
     <ul>
       <li>Create subscribees table
@@ -96,6 +109,8 @@ HTML;
     <li>User roles
     <li>Moderation
     <li>Local follow
+    <li>Username rules
+    <li>Move getUrl functions to router
   </ol>
 HTML;
     return $response->write($output);

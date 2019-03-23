@@ -5,5 +5,3 @@ CREATE TABLE IF NOT EXISTS subscriber (
   user_id INT NOT NULL,
   PRIMARY KEY (id)
 );
-
-ALTER TABLE subscriber ADD CONSTRAINT UNIQUE(url);

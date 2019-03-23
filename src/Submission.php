@@ -1,13 +1,13 @@
 <?php
 namespace Art;
 
-class Gallery extends Route {
+class Submission extends Route {
   function renderImage($submission){
     return "<img src=\"/uploads/{$submission->file}\">";
   }
 
   function renderAudio($submission){
-    return "<audio controls src=\"/uploads/{$submission->file}\">";
+    return "<audio controls src=\"/uploads/{$submission->file}\"></audio>";
   }
 
   function renderSub($submission){
@@ -22,21 +22,17 @@ class Gallery extends Route {
   }
 
   function view ($req, $res, $args) {
-    $user = $this->user;
+    $submission = \Art\models\Submission::where('id', $args['id'])->first();
 
-    $output = '';
-
-    foreach($user->submissions()->get() as $submission) {
-      $thumb = $this->renderSub($submission);
-      $desc = htmlentities($submission->description);
-      $output .= <<<HTML
-        <div>
-          <h2><a href="{$submission->getUrl()}">{$submission->title}</a></h2>
-          $thumb
-          <p>$desc</p>
-        </div>
+    $thumb = $this->renderSub($submission);
+    $desc = htmlentities($submission->description);
+    $output = <<<HTML
+      <div>
+        <h2><a href="{$submission->getUrl()}">{$submission->title}</a></h2>
+        $thumb
+        <p>$desc</p>
+      </div>
 HTML;
-    }
 
     return $res->write($output);
   }
