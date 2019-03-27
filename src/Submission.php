@@ -1,6 +1,8 @@
 <?php
 namespace Art;
 
+require('components/page.php');
+
 class Submission extends Route {
   function renderImage($file){
     return "<img src=\"/uploads/{$file->file}\">";
@@ -45,6 +47,6 @@ class Submission extends Route {
       </div>
 HTML;
 
-    return $res->write($output);
+    return $res->write(page($this->user, [$output]));
   }
 }

@@ -2,6 +2,8 @@
 
 namespace Art;
 
+require('components/page.php');
+
 class Upload extends Route {
   function __invoke ($request, $response, $args) {
     if(!$this->user) {
@@ -99,6 +101,6 @@ class Upload extends Route {
         <button name="submit">Upload</button>
       </form>
 HTML;
-    return $response->write($output);
+    return $response->write(page($this->user, [$output]));
   }
 }

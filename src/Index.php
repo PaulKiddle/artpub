@@ -2,6 +2,10 @@
 
 namespace Art;
 
+require('components/thumb.php');
+require('components/gallery.php');
+require('components/page.php');
+
 class Index extends Route {
   function submit ($request, $response) {
     global $config;
@@ -34,62 +38,19 @@ class Index extends Route {
   }
 
   function view($request, $response) {
-    $errors = $this->errors;
-    $user = $this->user['username'];
+    $router = $this->container->router;
 
-    $w = $user ? "Welcome, $user!" : '';
-
-    $output = '';
-
-    foreach($errors as $err) {
-      $output .= "<li>$err</li>";
-    }
-
-    if($output){
-      $output = "<ul>$output</ul>";
-    }
-
-
-    $r = '';
-
-    foreach(\Art\models\Submission::all() as $row) {
-      $file = $row->files()->first();
-      $title = $row['title'];
-      switch($row['type']){
-        case 'image':
-          $thumb = "<img src=\"/uploads/$file->file\">";
-          break;
-        case 'audio':
-          $thumb = "<img alt=\"Audio file\">";
-          break;
-        default:
-          $thumb = "<img alt=\"???\">";
-          break;
-      }
-
-      $r .= <<<HTML
-        <div>
-          <h2><a href="{$row->getUrl()}">$title</a></h2>
-          <p>{$row->artist()->first()->username}</p>
-          $thumb
-        </div>
-HTML;
-
-    }
+    $output = page($this->user, [
+      gallery(
+        \Art\models\Submission::all()->map(function($sub) use($router) {
+          return thumb($router, $sub);
+        })->toArray()
+      )
+    ], $this->errors);
 
     $output .= <<<HTML
-  <form method="POST">
-    <label>Username <input name="username"></label><br>
-    <label>Password <input type="password" name="password"></label>
-    <button name="submit">Sign up</button>
-  </form>
-
-  $w
-
-  $r
-
   <ol>
-    <li>Templates: sanitize, tidy, use form helper
+    <li>Templates: Better upload page, submission page, menu bar
     <li>Follow remote
     <ul>
       <li>Create subscribees table
