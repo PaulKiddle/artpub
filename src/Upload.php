@@ -14,7 +14,7 @@ class Upload extends Route {
   function submit($request, $response) {
     $files = $request->getUploadedFiles()['file'];
 
-    $mimeType0 = mime_content_type($files[0]->getClientFilename());
+    $mimeType0 = mime_content_type($_FILES['file']['tmp_name'][0]);
     $type0 = explode('/', $mimeType0)[0];
 
     $sub = new \Art\models\Submission();
@@ -58,16 +58,18 @@ class Upload extends Route {
         ];
       }
 
+     $url = $sub->getUrl();
+
       $object = [
         'id' => $sub->getUrl(),
         'type'=> 'Note',
         'published'=> date('c'),
         'attributedTo' => $this->user->getUrl(),
-        'content'=> $sub->description,
+        'content'=> "<a href='$url'>$sub->title</a><p>$sub->description</p>",
         'to'=>'https://www.w3.org/ns/activitystreams#Public',
         'name' => $sub->title,
         'attachment' => $attachment,
-        'url' => $sub->getUrl()
+        'url' => $url
       ];
 
       $name = $this->user['username'];
