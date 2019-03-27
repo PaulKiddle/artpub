@@ -3,11 +3,11 @@ namespace Art;
 
 class Gallery extends Route {
   function renderImage($submission){
-    return "<img src=\"/uploads/{$submission->file}\">";
+    return "<img src=\"/uploads/{$submission->getThumb()->file}\">";
   }
 
   function renderAudio($submission){
-    return "<audio controls src=\"/uploads/{$submission->file}\">";
+    return "<audio controls src=\"/uploads/{$submission->getThumb()->file}\">";
   }
 
   function renderSub($submission){

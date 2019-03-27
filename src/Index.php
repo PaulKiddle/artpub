@@ -53,11 +53,11 @@ class Index extends Route {
     $r = '';
 
     foreach(\Art\models\Submission::all() as $row) {
-      $file = $row['file'];
+      $file = $row->files()->first();
       $title = $row['title'];
       switch($row['type']){
         case 'image':
-          $thumb = "<img src=\"/uploads/$file\">";
+          $thumb = "<img src=\"/uploads/$file->file\">";
           break;
         case 'audio':
           $thumb = "<img alt=\"Audio file\">";
@@ -89,9 +89,6 @@ HTML;
   $r
 
   <ol>
-    <li>Allow url slugs
-    <li>Improve submission page html
-    <li>Broadcast creates as correct object type
     <li>Templates: sanitize, tidy, use form helper
     <li>Follow remote
     <ul>
@@ -106,11 +103,16 @@ HTML;
       <li>Insert into inbox table
       <li>Create inbox view
     </ul>
+    <li>Allow url slugs
+    <li>Allow text input
     <li>User roles
     <li>Moderation
     <li>Local follow
     <li>Username rules
     <li>Move getUrl functions to router
+    <li>Custom content/field types/tags
+    <li>Serve content from another origin
+    <li>Migrate to python
   </ol>
 HTML;
     return $response->write($output);

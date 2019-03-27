@@ -2,20 +2,27 @@
 namespace Art;
 
 class Submission extends Route {
-  function renderImage($submission){
-    return "<img src=\"/uploads/{$submission->file}\">";
+  function renderImage($file){
+    return "<img src=\"/uploads/{$file->file}\">";
   }
 
-  function renderAudio($submission){
-    return "<audio controls src=\"/uploads/{$submission->file}\"></audio>";
+  function renderAudio($file){
+    return "<audio controls src=\"/uploads/{$file->file}\"></audio>";
   }
 
-  function renderSub($submission){
-    switch($submission->type) {
+  function renderText($file){
+    return "<iframe sandbox src=\"/uploads/{$file->file}\"></iframe>";
+  }
+
+  function renderSub($file){
+    $type = explode("/", $file->media_type)[0];
+    switch($type) {
       case 'image':
-        return $this->renderImage($submission);
+        return $this->renderImage($file);
       case 'audio':
-        return $this->renderAudio($submission);
+        return $this->renderAudio($file);
+      case 'text':
+        return $this->renderText($file);
       default:
         return "Can't render $type files";
     }
@@ -24,12 +31,16 @@ class Submission extends Route {
   function view ($req, $res, $args) {
     $submission = \Art\models\Submission::where('id', $args['id'])->first();
 
-    $thumb = $this->renderSub($submission);
+    $rendered = [];
+    foreach($submission->files()->get() as $file){
+      $rendered[] = $this->renderSub($file);
+    }
+    $content = implode("\n", $rendered);
     $desc = htmlentities($submission->description);
     $output = <<<HTML
       <div>
         <h2><a href="{$submission->getUrl()}">{$submission->title}</a></h2>
-        $thumb
+        $content
         <p>$desc</p>
       </div>
 HTML;

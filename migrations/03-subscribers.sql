@@ -6,6 +6,3 @@ CREATE TABLE IF NOT EXISTS subscriber (
   PRIMARY KEY (id),
   UNIQUE KEY (user_id, url)
 );
-
-DROP INDEX url ON subscriber;
-ALTER TABLE subscriber ADD CONSTRAINT UNIQUE (user_id, url);
