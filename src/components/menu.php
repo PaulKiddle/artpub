@@ -1,8 +1,16 @@
 <?php
 
 function menu($user) {
+  $items = "";
   $username = $user->username ? "Welcome, $user->username!" : '';
-  $add = $username ? "<a class=Menu__upload href=/upload>Upload</a>" : '';
+  $items .= $username ? "$username<a class=Menu__upload href=/upload>Upload</a>" : "<details>
+    <summary>Log in</summary>
+    <form method=\"POST\">
+      <label>Username <input name=\"username\"></label><br>
+      <label>Password <input type=\"password\" name=\"password\"></label><br>
+      <button name=\"submit\">Sign up</button>
+    </form>
+  </details>";
 
   return <<<END
     <style>
@@ -11,30 +19,35 @@ function menu($user) {
       background: #333;
       color: #CCC;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
+    }
+
+    .Menu > * {
+      margin: 10px;
     }
 
     .Menu__upload {
       display: inline-block;
-      background: #99cc00;
+      background: #00CC00;
       color: black;
       padding: 10px;
       border-radius: 5px;
       text-decoration: none;
     }
 
-    .Menu__upload:hover{
+    .Menu__upload:hover {
       text-decoration: underline;
+    }
+
+    .Menu__title {
+      margin-right: auto;
+      font-weight: bold;
+      color: inherit;
     }
     </style>
     <div class="Menu">
-        <form method="POST">
-        <label>Username <input name="username"></label><br>
-        <label>Password <input type="password" name="password"></label>
-        <button name="submit">Sign up</button>
-      </form>
-      {$username}
-      $add
+      <a href="/" class="Menu__title">ArtPub</a>
+      $items
     </div>
   END;
 }

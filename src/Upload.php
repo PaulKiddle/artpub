@@ -94,11 +94,52 @@ class Upload extends Route {
     }
 
     $output .= <<<HTML
-      <form enctype="multipart/form-data" method="POST">
-        <input type="file" name="file[]" multiple><br>
-        <input name="title"><br>
-        <textarea name="description"></textarea>
-        <button name="submit">Upload</button>
+      <style>
+      .Upload {
+        padding-top: 50px;
+        display: flex;
+        flex-direction: column;
+        width: 50%;
+        margin: auto;
+      }
+
+      .Upload__field {
+        display: block;
+        width: 100%;
+        padding: 10px;
+      }
+
+      .Upload__files {
+        box-sizing: content-box;
+        background: #CCC;
+        height: 100px;
+        padding: 10px 0;
+        text-align: center;
+      }
+
+      .Upload__desc {
+        height: 100px;
+      }
+
+      .Upload__fieldset {
+        margin: 10px;
+      }
+      </style>
+      <form class="Upload" enctype="multipart/form-data" method="POST">
+        <h1>Upload</h1>
+        <label class="Upload__fieldset">
+          Files to upload
+          <input type="file" name="file[]" multiple class="Upload__field Upload__files">
+        </label>
+        <label class="Upload__fieldset">
+          Title
+          <input name="title" class="Upload__field">
+        </label>
+        <label class="Upload__fieldset">
+          Description
+          <textarea name="description" class="Upload__field Upload__desc"></textarea>
+        </label>
+        <button name="submit" class="Upload__fieldset">Upload</button>
       </form>
 HTML;
     return $response->write(page($this->user, [$output]));

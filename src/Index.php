@@ -50,7 +50,6 @@ class Index extends Route {
 
     $output .= <<<HTML
   <ol>
-    <li>Templates: Better upload page, submission page, menu bar
     <li>Follow remote
     <ul>
       <li>Create subscribees table

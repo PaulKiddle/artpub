@@ -32,6 +32,7 @@ class Submission extends Route {
 
   function view ($req, $res, $args) {
     $submission = \Art\models\Submission::where('id', $args['id'])->first();
+    $author = $submission->artist()->first()->username;
 
     $rendered = [];
     foreach($submission->files()->get() as $file){
@@ -40,10 +41,46 @@ class Submission extends Route {
     $content = implode("\n", $rendered);
     $desc = htmlentities($submission->description);
     $output = <<<HTML
-      <div>
-        <h2><a href="{$submission->getUrl()}">{$submission->title}</a></h2>
-        $content
-        <p>$desc</p>
+      <style>
+      .Submission {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .Submission__content {
+        background: #333;
+        min-height: 250px;
+        display: grid;
+        align-items: center;
+        padding-bottom: 20px;
+      }
+
+      .Submission__content > * {
+        max-width: 100%;
+      }
+
+      .Submission audio {
+        height: 40px;
+      }
+
+      .Submission iframe {
+        background: white;
+        justify-self: center;
+      }
+
+      .Submission__desc {
+        min-height: 250px;
+        width: 80%;
+        margin: auto;
+      }
+      </style>
+      <div class="Submission">
+        <div class="Submission__content">$content</div>
+        <div class="Submission__desc">
+          <h1>{$submission->title}</h1>
+          <h2>{$author}</h2>
+          <p>$desc</p>
+        </div>
       </div>
 HTML;
 
