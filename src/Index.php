@@ -48,33 +48,6 @@ class Index extends Route {
       )
     ], $this->errors);
 
-    $output .= <<<HTML
-  <ol>
-    <li>Follow remote
-    <ul>
-      <li>Create subscribees table
-      <li>Resolve webfinger
-      <li>Send follow activity
-      <li>Insert into table as pending
-      <li>Process accept activity
-      <li>Update pending to following
-      <li>Create inbox table
-      <li>Process create activities
-      <li>Insert into inbox table
-      <li>Create inbox view
-    </ul>
-    <li>Allow url slugs
-    <li>Allow text input
-    <li>User roles
-    <li>Moderation
-    <li>Local follow
-    <li>Username rules
-    <li>Move getUrl functions to router
-    <li>Custom content/field types/tags
-    <li>Serve content from another origin
-    <li>Migrate to python
-  </ol>
-HTML;
     return $response->write($output);
   }
 }

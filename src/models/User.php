@@ -55,6 +55,11 @@ class User extends \Illuminate\Database\Eloquent\Model {
     return "https://$httpHost/user/$this->username";
   }
 
+  function getWebfinger() {
+    $httpHost = $_SERVER['HTTP_HOST'];
+    return "$this->username@$httpHost";
+  }
+
   function activity($type, $object) {
     $httpHost = $_SERVER['HTTP_HOST'];
     $guid = time();

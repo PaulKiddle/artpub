@@ -15,6 +15,11 @@ class Gallery extends Route {
       $output[] = thumb($this->container->router, $submission);
     }
 
-    return $res->write(page($user, ["<h1>$user->username's gallery</h1>", gallery($output)]));
+    return $res->write(page($user,
+      [
+        "<h1>$user->username's gallery</h1>",
+        "<p>Follow with ActivityPub: <i>{$user->getWebfinger()}</i></p>",
+        gallery($output)
+      ]));
   }
 }
