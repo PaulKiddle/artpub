@@ -60,16 +60,17 @@ class Inbox extends Route {
         $sub->save();
         $user->send($user->activity("Accept", $data), $actor['inbox']);
       case 'accept':
-        $follow = $user->following->where('url', $actor['id']);
+        $follow = $user->following->where('url', $actor['id'])->first();
         $follow->accepted = 1;
         $follow->save();
       case 'create':
+        $following = $user->following->where('url', $actor['id'])->first();
         $create = new \Art\models\Inbox();
         $create->message = 'New object created';
-        $create->url = $data['object']['id'];
-        $create->following_id = $actor['id'];
+        $create->url = $data['object']['url'];
+        $create->following_id = $following->id;
         $create->user_id = $user->id;
-        $create->save;
+        $create->save();
     }
     return $res->withStatus(202);
   }

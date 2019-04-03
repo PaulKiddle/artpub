@@ -35,20 +35,19 @@ class Follow extends Route {
         'header'=>"Accept: application/json\r\n"
       )
     );
-    $actor_url = json_decode(file_get_contents($actor, false, stream_context_create($get_opts)), true);
+    $actor = json_decode(file_get_contents($actor_url, false, stream_context_create($get_opts)), true);
     $inbox = $actor['inbox'];
 
     $follow = new \Art\models\Following();
     $follow->url = $actor['id'];
     $follow->inbox = $inbox;
-    $follow->user_id = $user->id;
+    $follow->user_id = $this->user->id;
     $follow->username = $webfinger;
     $follow->accepted = 0;
     $follow->save();
-    $data = [
-      'object' => $actor_url
-    ];
-    $user->send($user->activity("Follow", $data), $inbox);
+    $this->user->send($this->user->activity("Follow", $actor_url), $inbox);
+
+    return "Done";
   }
 
   function view($request, $response){

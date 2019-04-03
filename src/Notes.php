@@ -14,15 +14,15 @@ class Notes extends Route {
   }
 
   function view($request, $response){
-    $output = '';
+    $box = '';
 
-    foreach($this->user->inbox as $note) {
-      $output .= print_r($note, true);
+    foreach($this->user->inbox()->get() as $note) {
+      $box .= '<li><a href="' . $note->url . '">' . $note->message . '</a> by '. $note->author()->first()->username;
     }
 
     $output = <<<HTML
       <h1>Inbox</h1>
-      $output
+      $box
 HTML;
     return $response->write(page($this->user, [$output]));
   }
