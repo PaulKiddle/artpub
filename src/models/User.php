@@ -14,6 +14,14 @@ class User extends \Illuminate\Database\Eloquent\Model {
     return $this->hasMany('Art\models\Subscriber', 'user_id');
   }
 
+  public function following(){
+    return $this->hasMany('Art\models\Following', 'user_id');
+  }
+
+  public function inbox(){
+    return $this->hasMany('Art\models\Inbox', 'user_id');
+  }
+
   protected function performInsert($q){
     $this->generateKeypair();
     return parent::performInsert($q);

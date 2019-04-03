@@ -47,6 +47,8 @@ $app->post('/user/{id}/inbox', \Art\Inbox::class);
 $app->get('/submission/{id}[/]', \Art\Submission::class)->setName('submission');
 
 $app->any('/upload', \Art\Upload::class);
+$app->any('/follow', \Art\Follow::class);
+$app->any('/notes', \Art\Notes::class);
 
 $app->any('/', \Art\Index::class);
 
