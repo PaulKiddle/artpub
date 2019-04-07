@@ -78,8 +78,6 @@ class Upload extends Route {
       $this->user->broadcast($this->user->activity('Create', $object));
       return $response->withRedirect('/');
     }
-
-    $this->errors[] = $q->errorInfo()[2];
   }
 
   function view($request, $response){
