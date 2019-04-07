@@ -53,12 +53,12 @@ class Inbox extends Route {
 
     switch($type){
       case 'follow':
+        $user->send($user->activity("Accept", $data), $actor['inbox']);
         $sub = new \Art\models\Subscriber();
         $sub->url = $actor['id'];
         $sub->inbox = $actor['inbox'];
         $sub->user_id = $user->id;
         $sub->save();
-        $user->send($user->activity("Accept", $data), $actor['inbox']);
       case 'accept':
         $follow = $user->following->where('url', $actor['id'])->first();
         $follow->accepted = 1;
@@ -66,7 +66,7 @@ class Inbox extends Route {
       case 'create':
         $following = $user->following->where('url', $actor['id'])->first();
         $create = new \Art\models\Inbox();
-        $create->message = 'New object created:'; // $data['content'] . print_r($data['object'], true);
+        $create->message = 'New ' . $data['object']['type'] . ' created:' . $data['object']['content'];
         $create->url = $data['object']['url'];
         $create->following_id = $following->id;
         $create->user_id = $user->id;
