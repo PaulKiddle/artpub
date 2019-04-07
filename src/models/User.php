@@ -10,6 +10,10 @@ class User extends \Illuminate\Database\Eloquent\Model {
     return $this->hasMany('Art\models\Submission', 'author_id');
   }
 
+  public function journals(){
+    return $this->hasMany('Art\models\Journal', 'author_id');
+  }
+
   public function subscribers(){
     return $this->hasMany('Art\models\Subscriber', 'user_id');
   }

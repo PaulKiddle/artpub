@@ -45,8 +45,10 @@ $app->get('/user/{id}', \Art\User::class);
 $app->get('/user/{id}/gallery', \Art\Gallery::class)->setName('gallery');
 $app->post('/user/{id}/inbox', \Art\Inbox::class);
 $app->get('/submission/{id}[/]', \Art\Submission::class)->setName('submission');
+$app->get('/journal/{id}[/]', \Art\Journal::class)->setName('journal');
 
 $app->any('/upload', \Art\Upload::class);
+$app->any('/write', \Art\Write::class);
 $app->any('/follow', \Art\Follow::class);
 $app->any('/notes', \Art\Notes::class);
 
