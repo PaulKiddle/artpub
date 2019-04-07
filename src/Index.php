@@ -41,6 +41,10 @@ class Index extends Route {
     $router = $this->container->router;
 
     $output = page($this->user, [
+      "<p>This is a new fediverse project currently named 'artpub'. It's a social art hosting and artist development site.",
+      "<p>Currently in very early development.",
+      "<p>For source code, see <a href='https://github.com/PaulKiddle/artpub'>The GitHub repo</a>",
+      "<p>To join as an early test user, message <a href='//kith.kitchen/@paul'>@paul@kith.kitchen</a>.",
       gallery(
         \Art\models\Submission::all()->map(function($sub) use($router) {
           return thumb($router, $sub);
