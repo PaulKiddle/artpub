@@ -13,11 +13,19 @@ class Notes extends Route {
     return parent::__invoke($request, $response, $args);
   }
 
-  function view($request, $response){
+  function view($request, $response, $args){
+    $note = $request->getParam('delete');
+
+    if($note){
+      $note = \Art\models\Inbox::where('id', $note)->first();
+      if($note->user_id === $this->user->id) {
+        $note->delete();
+      }
+    }
     $box = '';
 
     foreach($this->user->inbox()->get() as $note) {
-      $box .= '<li><a href="' . $note->url . '">' . $note->message . '</a> by '. $note->author()->first()->username;
+      $box .= '<li><a href="' . $note->url . '">' . $note->message . '</a> by '. $note->author()->first()->username . "<a href='?delete={$note->id}'>x</a>";
     }
 
     $output = <<<HTML

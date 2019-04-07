@@ -46,7 +46,7 @@ class Upload extends Route {
       $file->save();
     }
 
-    if ($saved) {
+    if ($saved && !isset($_POST['scraps'])) {
       $domain = $_SERVER['HTTP_HOST'];
 
       $attachment = [];
@@ -139,6 +139,7 @@ class Upload extends Route {
           Description
           <textarea name="description" class="Upload__field Upload__desc"></textarea>
         </label>
+        <label class="Upload__fieldset"><input type="checkbox" name="scraps">Scraps</label>
         <button name="submit" class="Upload__fieldset">Upload</button>
       </form>
 HTML;
