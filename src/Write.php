@@ -79,7 +79,7 @@ class Write extends Route {
         margin: 10px;
       }
       </style>
-      <form class="Write" enctype="multipart/form-data" method="POST">
+      <form class="Write" method="POST">
         <h1>Write</h1>
         <label class="Write__fieldset">
           Title

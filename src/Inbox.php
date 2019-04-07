@@ -53,7 +53,7 @@ class Inbox extends Route {
 
     switch($type){
       case 'follow':
-        $user->send($user->activity("Accept", $data), $actor['inbox']);
+        $user->send($user->activity("Accept", $data), $actor['inbox'], $actor['id']);
         $sub = new \Art\models\Subscriber();
         $sub->url = $actor['id'];
         $sub->inbox = $actor['inbox'];

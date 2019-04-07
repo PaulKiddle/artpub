@@ -84,8 +84,10 @@ class User extends \Illuminate\Database\Eloquent\Model {
     ];
   }
 
-  public function send($activity, $inbox) {
+  public function send($activity, $inbox, $actor) {
     $activity['@context'] = 'https://www.w3.org/ns/activitystreams';
+    $activity['to'] = 'https://www.w3.org/ns/activitystreams#Public';
+    $activity['cc'] = $actor;
 
     $privKey = $this->private_key;
 
@@ -115,7 +117,7 @@ class User extends \Illuminate\Database\Eloquent\Model {
 
   public function broadcast($activity) {
     foreach($this->subscribers as $subscriber) {
-      $this->send($activity, $subscriber->inbox);
+      $this->send($activity, $subscriber->inbox, $subscriber->url);
     }
   }
 }
