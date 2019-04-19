@@ -120,4 +120,14 @@ class User extends \Illuminate\Database\Eloquent\Model {
       $this->send($activity, $subscriber->inbox, $subscriber->url);
     }
   }
+
+  public function addNote($message, $url, $following_id){
+    $create = new \Art\models\Inbox();
+    $create->message = $message;
+    $create->url = $url;
+    $create->following_id = $following_id;
+    $create->user_id = $this->id;
+    $create->save();
+    return $create;
+  }
 }
