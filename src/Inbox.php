@@ -58,7 +58,12 @@ class Inbox extends Route {
         $sub->url = $actor['id'];
         $sub->inbox = $actor['inbox'];
         $sub->user_id = $user->id;
-        $sub->save();
+        try {
+          $sub->save();
+        } catch (Exception $e) {
+          // Probably duplicate key where subscription has previously failed
+          error_log("Caught $e");
+        }
         $user->addNote(
           $actor['preferredUsername'] . ' followed you',
           $actor['url'],
