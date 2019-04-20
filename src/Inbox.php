@@ -64,10 +64,12 @@ class Inbox extends Route {
           $actor['url'],
           $actor['id']
         );
+        break;
       case 'accept':
         $follow = $user->following->where('url', $actor['id'])->first();
         $follow->accepted = 1;
         $follow->save();
+        break;
       case 'create':
         $following = $user->following->where('url', $actor['id'])->first();
         $user->addNote(
@@ -75,6 +77,7 @@ class Inbox extends Route {
           $data['object']['url'],
           $data['object']['attributedTo']
         );
+        break;
     }
     return $res->withStatus(202);
   }

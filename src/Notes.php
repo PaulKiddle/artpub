@@ -18,7 +18,7 @@ class Notes extends Route {
 
     if($note){
       $note = \Art\models\Inbox::where('id', $note)->first();
-      if($note->user_id === $this->user->id) {
+      if($note && $note->user_id === $this->user->id) {
         $note->delete();
       }
     }
