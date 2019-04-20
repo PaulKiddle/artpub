@@ -18,3 +18,5 @@ CREATE TABLE IF NOT EXISTS inbox (
   PRIMARY KEY (id),
   UNIQUE KEY (user_id, url)
 );
+
+ALTER TABLE inbox CHANGE COLUMN `following_id` `actor_url` VARCHAR(255) NOT NULL;

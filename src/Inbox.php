@@ -73,7 +73,7 @@ class Inbox extends Route {
         $user->addNote(
           'New ' . $data['object']['type'] . ' created: ' . $data['object']['content'],
           $data['object']['url'],
-          $following->id
+          $data['object']['attributedTo']
         );
     }
     return $res->withStatus(202);

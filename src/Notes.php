@@ -25,7 +25,7 @@ class Notes extends Route {
     $box = '';
 
     foreach($this->user->inbox()->get() as $note) {
-      $box .= '<li><a href="' . $note->url . '">' . $note->message . '</a> by '. $note->author()->first()->username . "<a href='?delete={$note->id}'>x</a>";
+      $box .= '<li><a href="' . $note->url . '">' . $note->message . '</a> by '. $note->actor_url . "<a href='?delete={$note->id}'>x</a>";
     }
 
     $output = <<<HTML
