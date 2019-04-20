@@ -9,6 +9,10 @@ A work-in-process image and media gallery that federates with ActivityPub. This 
 A submission is an object that consists of one or more media files. Currently accepted media are image, audio and text.
 Submissions can also have text descriptions.
 
+### Writing notes
+
+Write notes at `/write`; they act as microblog statuses.
+
 ### Following
 
 Activitypub users can follow the activity of artpub users in the usual way by subscribing to `username@domain`.
