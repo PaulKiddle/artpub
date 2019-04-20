@@ -76,10 +76,11 @@ class Inbox extends Route {
         $follow->save();
         break;
       case 'create':
+        // error_log(json_encode($data['object']));
         $following = $user->following->where('url', $actor['id'])->first();
         $user->addNote(
           'New ' . $data['object']['type'] . ' created: ' . $data['object']['content'],
-          $data['object']['url'],
+          $data['object']['url'] ?? $data['object']['id'],
           $data['object']['attributedTo']
         );
         break;
