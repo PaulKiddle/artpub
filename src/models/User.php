@@ -84,10 +84,12 @@ class User extends \Illuminate\Database\Eloquent\Model {
     ];
   }
 
-  public function send($activity, $inbox, $actor) {
+  public function send($activity, $inbox, $actor = false) {
     $activity['@context'] = 'https://www.w3.org/ns/activitystreams';
-    $activity['to'] = 'https://www.w3.org/ns/activitystreams#Public';
-    $activity['cc'] = $actor;
+    if($actor) {
+      $activity['to'] = 'https://www.w3.org/ns/activitystreams#Public';
+      $activity['cc'] = $actor;
+    }
 
     $privKey = $this->private_key;
 
@@ -104,7 +106,8 @@ class User extends \Illuminate\Database\Eloquent\Model {
     $headers = [
       "host" => "$host",
       "date" => "$date",
-      "signature" => "$signHeader"
+      "signature" => "$signHeader",
+      "content-type" => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     ];
     $body = json_encode($activity);
 
