@@ -16,6 +16,7 @@ class User extends Route {
       "type" => "Person",
       "preferredUsername" => $username,
       "inbox" => "$user_id/inbox",
+      "followers" => "$user_id/followers",
       "publicKey" => [
         "id" => "$user_id#main-key",
         "owner" => $user_id,
