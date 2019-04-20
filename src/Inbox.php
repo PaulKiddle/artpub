@@ -60,7 +60,7 @@ class Inbox extends Route {
         $sub->user_id = $user->id;
         try {
           $sub->save();
-        } catch (Exception $e) {
+        } catch (\Illuminate\Database\QueryException  $e) {
           // Probably duplicate key where subscription has previously failed
           error_log("Caught $e");
         }
@@ -85,6 +85,6 @@ class Inbox extends Route {
         );
         break;
     }
-    return $res->withStatus(202);
+    return $res->withStatus(200);
   }
 }

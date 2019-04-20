@@ -113,6 +113,8 @@ class User extends \Illuminate\Database\Eloquent\Model {
 
     $client = new \GuzzleHttp\Client();
 
+    // error_log($body);
+
     $res = $client->request('POST', $inbox, ['body' => $body, 'headers' => $headers, 'debug'=>true]);
     error_log($res->getBody());
     error_log($res->getStatusCode());
