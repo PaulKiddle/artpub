@@ -3,7 +3,7 @@
 function menu($user) {
   $items = "";
   $username = $user->username ? "Welcome, $user->username!" : '';
-  $items .= $username ? "$username<a class=Menu__upload href=/upload>Upload</a>" : "<details>
+  $items .= $username ? "$username<a class=Menu__upload href=/upload>Upload</a> <a class=Menu__link href=/write>Write</a> | <a class=Menu__link href=/notes>Inbox</a>" : "<details>
     <summary>Log in</summary>
     <form method=\"POST\">
       <label>Username <input name=\"username\"></label><br>
@@ -24,6 +24,10 @@ function menu($user) {
 
     .Menu > * {
       margin: 10px;
+    }
+
+    .Menu__link {
+      color: #ccc;
     }
 
     .Menu__upload {
