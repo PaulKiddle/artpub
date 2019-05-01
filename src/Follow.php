@@ -60,9 +60,14 @@ class Follow extends Route {
     $follow->username = $webfinger;
     $follow->accepted = 0;
     $follow->save();
-    $this->user->send($this->user->activity("Follow", $actor_url), $inbox, $actor_url);
 
-    return "Done";
+    try {
+      $this->user->send($this->user->activity("Follow", $actor_url), $inbox, $actor_url);
+    } catch(Exception $e) {
+      return "An error occurred trying to follow $webfinger; ". $e->getMessage();
+    }
+
+    return "A follow request has been sent to $webfinger";
   }
 
   function view($request, $response){
