@@ -14,19 +14,25 @@ class Follow extends Route {
   }
 
   function submit($request, $response) {
-    $webfinger = $_POST['follow'];
-    list($user, $domain) = explode('@', $webfinger);
-    $url = 'https://' . $domain . '/.well-known/webfinger?resource=acct:' . $webfinger;
-    $obj = json_decode(file_get_contents($url));
-    foreach($obj->links as $link) {
-      if($link->rel == 'self') {
-        $actor_url = $link->href;
-        break;
+    $webfinger = trim($_POST['follow'], "@ \t\n\r\0\x0B");
+
+    if(preg_match('/^https?:\/\//', $webfinger)) {
+      $actor_url = $webfinger;
+      $webfinger = null;
+    } else {
+      list($user, $domain) = explode('@', $webfinger);
+      $url = 'https://' . $domain . '/.well-known/webfinger?resource=acct:' . $webfinger;
+      $obj = json_decode(file_get_contents($url));
+      foreach($obj->links as $link) {
+        if($link->rel == 'self') {
+          $actor_url = $link->href;
+          break;
+        }
       }
     }
 
     if(!isset($actor_url)){
-      return;
+      return "Couldn't find an actor with that URL/webfinger";
     }
 
     $get_opts = array(
@@ -36,7 +42,16 @@ class Follow extends Route {
       )
     );
     $actor = json_decode(file_get_contents($actor_url, false, stream_context_create($get_opts)), true);
+
+    if(!isset($webfinger)) {
+      $webfinger = $actor['preferredUsername'] . '@' . parse_url($actor_url, PHP_URL_HOST);
+    }
+
     $inbox = $actor['inbox'];
+
+    if(!isset($inbox)) {
+      return;
+    }
 
     $follow = new \Art\models\Following();
     $follow->url = $actor['id'];
