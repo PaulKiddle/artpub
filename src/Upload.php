@@ -116,7 +116,7 @@ class Upload extends Route {
       }
 
       .Upload__desc {
-        height: 100px;
+        height: 200px;
       }
 
       .Upload__fieldset {

@@ -72,7 +72,7 @@ class Write extends Route {
       }
 
       .Write__desc {
-        height: 100px;
+        height: 200px;
       }
 
       .Write__fieldset {
