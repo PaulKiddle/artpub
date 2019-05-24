@@ -3,7 +3,7 @@
 function menu($user) {
   $items = "";
   $username = $user->username ? "Welcome, $user->username!" : '';
-  $numNotes = $user->inbox()->count();
+  $numNotes = $username ? $user->inbox()->count() : 0;
   if ($numNotes > 0) {
     $numNotes = " ($numNotes)";
   }
