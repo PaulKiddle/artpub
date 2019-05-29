@@ -2,6 +2,8 @@
 
 A work-in-process image and media gallery that federates with ActivityPub. This project is in early development and not ready for production use.
 
+If you'd like to help out with this project, send me a message or read how to get started bellow and on the [contributing](CONTRIBUTING.MD) page.
+
 ## Features
 
 ### Uploading Submissions
@@ -49,9 +51,4 @@ Run `composer install`.
 
 Run `./start.sh` - your site should now be up and running on localhost:3030.
 
-## Structure
-
- - Routing and general site configuration is in `index.php`.
- - Route views are in `src`.
- - Views may use components in `src/components`.
- - Models are in `src/models`.
+More information is in the [contributing](CONTRIBUTING.MD) document.
