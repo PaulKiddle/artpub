@@ -22,13 +22,18 @@ class Index extends Route {
       }
     } else if(!isset($config['disable_signup'])) {
       $user = new \Art\models\User;
-      $user->username = $_POST['username'];
-      $user->setPassword($_POST['password']);
-      $r = $user->save();
-      if($r) {
-        return $response->withRedirect($request->getUri()->getPath());
+
+      if (preg_match("/[^A-Za-z0-9]/", $_POST['username'])) {
+        $errors[] = 'You may only use letters and numbers for your username';
       } else {
-        $errors[] = $q->errorInfo();
+        $user->username = $_POST['username'];
+        $user->setPassword($_POST['password']);
+        $r = $user->save();
+        if($r) {
+          return $response->withRedirect($request->getUri()->getPath());
+        } else {
+          $errors[] = $q->errorInfo();
+        }
       }
     } else {
       $errors[] = 'Incorrect username/password';
