@@ -1,0 +1,22 @@
+{
+  "name": "artpub",
+  "version": "0.1.0",
+  "description": "A work-in-process image and media gallery that federates with ActivityPub. This project is in early development and not ready for production use.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PaulKiddle/artpub.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PaulKiddle/artpub/issues"
+  },
+  "homepage": "https://github.com/PaulKiddle/artpub#readme",
+  "devDependencies": {
+    "bot-node": "git+https://github.com/dariusk/express-activitypub.git"
+  }
+}

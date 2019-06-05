@@ -4,6 +4,18 @@ namespace Art;
 
 require('components/page.php');
 
+function http_url($url, $use_http) {
+  if(!$use_http) {
+    return $url;
+  } else {
+    return preg_replace('/^https:/', 'http:', $url);
+  }
+}
+
+function https_url($url) {
+  return preg_replace('/^http:/', 'https:', $url);
+}
+
 class Follow extends Route {
   function __invoke ($request, $response, $args) {
     if(!$this->user) {
@@ -14,6 +26,7 @@ class Follow extends Route {
   }
 
   function submit($request, $response) {
+    $use_http = 0;
     $webfinger = trim($_POST['follow'], "@ \t\n\r\0\x0B");
 
     if(preg_match('/^https?:\/\//', $webfinger)) {
@@ -23,9 +36,15 @@ class Follow extends Route {
       list($user, $domain) = explode('@', $webfinger);
       $url = 'https://' . $domain . '/.well-known/webfinger?resource=acct:' . $webfinger;
       $obj = json_decode(file_get_contents($url));
+      if(!$obj) {
+        $use_http = 1;
+        error_log('Trying http instead');
+        $url = http_url($url, 1);
+        $obj = json_decode(file_get_contents($url));
+      }
       foreach($obj->links as $link) {
         if($link->rel == 'self') {
-          $actor_url = $link->href;
+          $actor_url = http_url($link->href, $use_http);
           break;
         }
       }
@@ -47,14 +66,14 @@ class Follow extends Route {
       $webfinger = $actor['preferredUsername'] . '@' . parse_url($actor_url, PHP_URL_HOST);
     }
 
-    $inbox = $actor['inbox'];
+    $inbox = http_url($actor['inbox'], $use_http);
 
     if(!isset($inbox)) {
       return;
     }
 
     $follow = new \Art\models\Following();
-    $follow->url = $actor['id'];
+    $follow->url = http_url($actor['id'], $use_http);
     $follow->inbox = $inbox;
     $follow->user_id = $this->user->id;
     $follow->username = $webfinger;
@@ -62,7 +81,7 @@ class Follow extends Route {
     $follow->save();
 
     try {
-      $this->user->send($this->user->activity("Follow", $actor_url), $inbox, $actor_url);
+      $this->user->send($this->user->activity("Follow", https_url($actor_url)), $inbox, $actor_url);
     } catch(Exception $e) {
       return "An error occurred trying to follow $webfinger; ". $e->getMessage();
     }

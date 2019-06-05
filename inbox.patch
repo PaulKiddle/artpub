@@ -1,0 +1,28 @@
+--- inbox-orig.js	2019-06-05 13:12:34.667301358 +0100
++++ inbox.js	2019-06-05 13:06:47.176000000 +0100
+@@ -5,6 +5,7 @@
+       router = express.Router();
+ 
+ function signAndSend(message, name, domain, req, res, targetDomain) {
++  message = message.replace(/https/g, 'http');
+   // get the URI of the actor object and append 'inbox' to it
+   let inbox = message.object.actor+'/inbox';
+   let inboxFragment = inbox.replace('https://'+targetDomain,'');
+@@ -23,7 +24,8 @@
+     signer.end();
+     const signature = signer.sign(privkey);
+     const signature_b64 = signature.toString('base64');
+-    let header = `keyId="https://${domain}/u/${name}",headers="(request-target) host date",signature="${signature_b64}"`;
++    let header = `keyId="http://${domain}/u/${name}",headers="(request-target) host date",signature="${signature_b64}"`;
++    console.log('header', header);
+     request({
+       url: inbox,
+       headers: {
+@@ -69,6 +71,7 @@
+ router.post('/', function (req, res) {
+   // pass in a name for an account, if the account doesn't exist, create it!
+   let domain = req.app.get('domain');
++  console.log(req.body);
+   const myURL = new URL(req.body.actor);
+   let targetDomain = myURL.hostname;
+   // TODO: add "Undo" follow event

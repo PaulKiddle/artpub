@@ -1,0 +1,32 @@
+--- api-orig.js	2019-06-05 13:10:27.274000000 +0100
++++ api.js	2019-06-05 13:11:01.446999822 +0100
+@@ -21,8 +21,11 @@
+ });
+ 
+ function signAndSend(message, name, domain, req, res, targetDomain, inbox) {
++  message = JSON.parse(JSON.stringify(message).replace(/https/g, 'http'))
++  console.log(message);
+   // get the private key
+   let db = req.app.get('db');
++  console.log('Inbox:', inbox);
+   let inboxFragment = inbox.replace('https://'+targetDomain,'');
+   let result = db.prepare('select privkey from accounts where name = ?').get(`${name}@${domain}`);
+   if (result === undefined) {
+@@ -33,13 +36,15 @@
+     const signer = crypto.createSign('sha256');
+     let d = new Date();
+     let stringToSign = `(request-target): post ${inboxFragment}\nhost: ${targetDomain}\ndate: ${d.toUTCString()}`;
++    console.log(stringToSign);
+     signer.update(stringToSign);
+     signer.end();
+     const signature = signer.sign(privkey);
+     const signature_b64 = signature.toString('base64');
+-    let header = `keyId="https://${domain}/u/${name}",headers="(request-target) host date",signature="${signature_b64}"`;
++    let header = `keyId="http://${domain}/u/${name}",headers="(request-target) host date",signature="${signature_b64}"`;
++    console.log('Header', header)
+     request({
+-      url: inbox,
++      url: inbox.replace('https', 'http'),
+       headers: {
+         'Host': targetDomain,
+         'Date': d.toUTCString(),

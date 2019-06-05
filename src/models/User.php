@@ -107,7 +107,8 @@ class User extends \Illuminate\Database\Eloquent\Model {
       "host" => "$host",
       "date" => "$date",
       "signature" => "$signHeader",
-      "content-type" => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      "content-type" => "application/activity+json"
+      #"content-type" => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     ];
     $body = json_encode($activity);
 

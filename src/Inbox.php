@@ -33,6 +33,7 @@ function verify_sig($req){
     },
     explode(' ', $headers)
   ));
+  error_log(print_r([$comparison_string, $signature, $key], true));
 
   return openssl_verify($comparison_string, $signature, $key, OPENSSL_ALGO_SHA256) ? $actor : false;
 }

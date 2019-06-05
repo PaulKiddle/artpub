@@ -1,0 +1,8 @@
+{
+  "USER": "test",
+  "PASS": "pass",
+  "DOMAIN": "localhost:3000",
+  "PORT": "3000",
+  "PRIVKEY_PATH": "",
+  "CERT_PATH": ""
+}
