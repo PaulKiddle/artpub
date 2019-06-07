@@ -1,9 +1,11 @@
---- inbox-orig.js	2019-06-05 13:12:34.667301358 +0100
-+++ inbox.js	2019-06-05 13:06:47.176000000 +0100
-@@ -5,6 +5,7 @@
+--- routes/inbox.js.orig	1985-10-26 09:15:00.000000000 +0100
++++ routes/inbox.js	2019-06-07 22:15:32.371416369 +0100
+@@ -4,7 +4,8 @@
+       request = require('request'),
        router = express.Router();
- 
- function signAndSend(message, name, domain, req, res, targetDomain) {
+
+-function signAndSend(message, name, domain, req, res, targetDomain) {
++function signAndSend(message, name, domain, req, res, targetDomain) {
 +  message = message.replace(/https/g, 'http');
    // get the URI of the actor object and append 'inbox' to it
    let inbox = message.object.actor+'/inbox';
@@ -18,11 +20,14 @@
      request({
        url: inbox,
        headers: {
-@@ -69,6 +71,7 @@
+@@ -69,8 +71,9 @@
  router.post('/', function (req, res) {
    // pass in a name for an account, if the account doesn't exist, create it!
    let domain = req.app.get('domain');
 +  console.log(req.body);
    const myURL = new URL(req.body.actor);
-   let targetDomain = myURL.hostname;
+-  let targetDomain = myURL.hostname;
++  let targetDomain = myURL.host;
    // TODO: add "Undo" follow event
+   if (typeof req.body.object === 'string' && req.body.type === 'Follow') {
+     let name = req.body.object.replace(`https://${domain}/u/`,'');

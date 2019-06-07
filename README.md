@@ -60,4 +60,5 @@ To run the test server:
 1. Run `npm i`
 2. Copy test-server.json to node_modules/bot-node/config.json
 3. Apply the patches inbox.patch and api.patch to their respective js fields in node_modules/bot-node/routes
-4. Follow the instructions in node_modules/bot-node/README.md to create test users and post messages
+4. cd to node_modules/bot-node and run `node index.js`
+5. Follow the instructions in node_modules/bot-node/README.md to create test users and post messages
