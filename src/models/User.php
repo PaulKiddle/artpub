@@ -116,9 +116,13 @@ class User extends \Illuminate\Database\Eloquent\Model {
 
     // error_log($body);
 
-    $res = $client->request('POST', $inbox, ['body' => $body, 'headers' => $headers, 'debug'=>true]);
-    error_log($res->getBody());
-    error_log($res->getStatusCode());
+    try {
+      $res = $client->request('POST', $inbox, ['body' => $body, 'headers' => $headers, 'debug'=>true]);
+      error_log($res->getBody());
+      error_log($res->getStatusCode());
+    } catch (\GuzzleHttp\Exception\ConnectException $e) {
+      // TODO: Send this later, or remove from followers list
+    }
   }
 
   public function broadcast($activity) {
