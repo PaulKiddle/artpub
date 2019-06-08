@@ -70,6 +70,7 @@ class Inbox extends Route {
         }
         $user->addNote(
           $actor['preferredUsername'] . ' followed you',
+          '',
           $actor['url'],
           $act->id
         );
@@ -89,12 +90,13 @@ class Inbox extends Route {
             "title" => '',
             "type" => explode("/", $thumb['mediaType'])[0]
           ];
-          $thumb = thumb($thumb);
+          $thumb = thumb($sub);
         }else {
           $thumb = '';
         }
         $user->addNote(
-          'New ' . $data['object']['type'] . ' created: ' . $data['object']['content'] . $thumb,
+          'New ' . $data['object']['type'] . ' created: ' . $data['object']['content'],
+          $thumb,
           $data['object']['url'] ?? $data['object']['id'],
           \Art\models\Actor::fromUrl($data['object']['attributedTo'])->id
         );

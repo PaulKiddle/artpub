@@ -15,6 +15,8 @@ function thumb($sub, $author = null) {
 
   if($author) {
     $auth = "<a class=\"Thumb__author\" href={$author['url']}>{$author['name']}</a>";
+  } else {
+    $auth ="";
   }
 
   return <<<END

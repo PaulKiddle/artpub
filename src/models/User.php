@@ -132,10 +132,10 @@ class User extends \Illuminate\Database\Eloquent\Model {
     }
   }
 
-  public function addNote($message, $url, $actor_id){
+  public function addNote($message, $attachment, $url, $actor_id){
     $purifier = new \HTMLPurifier();
     $create = new \Art\models\Inbox();
-    $create->message = $purifier->purify(substr($message, 0, 1000));
+    $create->message = $purifier->purify(substr($message, 0, 1000)) . $attachment;
     $create->url = $url;
     $create->remote_actor_id = $actor_id;
     $create->user_id = $this->id;
