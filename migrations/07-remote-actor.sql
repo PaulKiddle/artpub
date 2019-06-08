@@ -24,7 +24,7 @@ UPDATE following
   JOIN remote_actor ON (following.url=remote_actor.url)
 SET remote_actor_id=remote_actor.id;
 
-ALTER TABLE following DROP index user_id_2;
+ALTER TABLE following DROP index user_id;
 ALTER TABLE following ADD INDEX (user_id, remote_actor_id);
 ALTER TABLE following DROP url, DROP inbox, DROP username;
 

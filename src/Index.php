@@ -51,8 +51,21 @@ class Index extends Route {
       "<p>For source code, see <a href='https://github.com/PaulKiddle/artpub'>The GitHub repo</a>",
       "<p>To join as an early test user, message <a href='//kith.kitchen/@paul'>@paul@kith.kitchen</a>.",
       gallery(
-        \Art\models\Submission::all()->map(function($sub) use($router) {
-          return thumb($router, $sub);
+        \Art\models\Submission::all()->map(function($submission) use($router) {
+          $file = $submission->files()->first();
+          $artist = $submission->artist()->first();
+          $author = [
+            "url" => $router->pathFor('gallery', ['id'=>$artist->id]),
+            "name" => $artist->username
+          ];
+          $sub = [
+            "title" => $submission->title,
+            "url" => $router->pathFor('submission', ['id'=>$submission->id]),
+            "thumb" => "/uploads/$file->file",
+            "type" => $submission->type
+          ];
+
+          return thumb($sub, $author);
         })->toArray()
       )
     ], $this->errors);

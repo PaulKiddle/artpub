@@ -12,7 +12,21 @@ class Gallery extends Route {
     $output = [];
 
     foreach($user->submissions()->get() as $submission) {
-      $output[] = thumb($this->container->router, $submission);
+      $this->container->router;
+      $file = $submission->files()->first();
+      $artist = $submission->artist()->first();
+      $author = [
+        "url" => $router->pathFor('gallery', ['id'=>$artist->id]),
+        "name" => $artist->username
+      ];
+      $sub = [
+        "title" => $submission->title,
+        "url" => $router->pathFor('submission', ['id'=>$submission->id]),
+        "thumb" => "/uploads/$file->file",
+        "type" => $submission->type
+      ];
+
+      $output[] = thumb($sub, $author);
     }
 
     $journals = [];

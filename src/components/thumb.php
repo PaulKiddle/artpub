@@ -1,12 +1,9 @@
 <?php
 
-function thumb($router, $submission) {
-  $file = $submission->files()->first();
-  $artist = $submission->artist()->first();
-
-  switch($submission->type){
+function thumb($sub, $author = null) {
+  switch($sub['type']){
     case 'image':
-      $thumb = "<img src=\"/uploads/$file->file\">";
+      $thumb = "<img src=\"{$sub['thumb']}\" alt=''>";
       break;
     case 'audio':
       $thumb = "Audio file";
@@ -14,6 +11,10 @@ function thumb($router, $submission) {
     default:
       $thumb = "???";
       break;
+  }
+
+  if($author) {
+    $auth = "<a class=\"Thumb__author\" href={$author['url']}>{$author['name']}</a>";
   }
 
   return <<<END
@@ -42,11 +43,11 @@ function thumb($router, $submission) {
       }
     </style>
     <div class="Thumb">
-      <a class="Thumb__title" href={$router->pathFor('submission', ['id'=>$submission->id])}>
+      <a class="Thumb__title" href={$sub['url']}>
         <div class="Thumb__image">$thumb</div>
-        $submission->title
+        {$sub['title']}
       </a>
-      <a class="Thumb__author" href={$router->pathFor('gallery', ['id'=>$artist->id]) }>{$artist->username}</a>
+      $auth
     </div>
     END;
 /*

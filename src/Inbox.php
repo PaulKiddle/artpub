@@ -1,6 +1,8 @@
 <?php
 namespace Art;
 
+require('components/thumb.php');
+
 function verify_sig($req){
   $signature = $req->getHeaderLine('signature');
   $signature_header = [];
@@ -79,8 +81,20 @@ class Inbox extends Route {
         break;
       case 'create':
         $following = $user->following->where('remote_actor_id', $act->id)->first();
+        if(isset($data['object']['attachment'][0])) {
+          $thumb = $data['object']['attachment'][0];
+          $sub = [
+            "thumb" => $thumb['url'],
+            "url" => $data['object']['url'],
+            "title" => '',
+            "type" => explode("/", $thumb['mediaType'])[0]
+          ];
+          $thumb = thumb($thumb);
+        }else {
+          $thumb = '';
+        }
         $user->addNote(
-          'New ' . $data['object']['type'] . ' created: ' . $data['object']['content'],
+          'New ' . $data['object']['type'] . ' created: ' . $data['object']['content'] . $thumb,
           $data['object']['url'] ?? $data['object']['id'],
           \Art\models\Actor::fromUrl($data['object']['attributedTo'])->id
         );
