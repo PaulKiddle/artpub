@@ -3,6 +3,7 @@
 namespace Art;
 
 require('components/page.php');
+require('components/note.php');
 
 class Notes extends Route {
   function __invoke ($request, $response, $args) {
@@ -25,13 +26,7 @@ class Notes extends Route {
     $box = '';
 
     foreach($this->user->inbox()->get() as $note) {
-      $box .= "<li style='display:flex;border:1px solid black;width:50%;margin:auto;'><div>"
-	. $note->actor_url .
-        "</div><div style='flex-grow:1'>" .$note->message."</div><div>"
-
-        ."<a href='"
-        . $note->url . "'>Link</a><br>"
-        . "<a href='?delete={$note->id}'>x</a></div></li>";
+      $box .= note($note);
     }
 
     $output = <<<HTML

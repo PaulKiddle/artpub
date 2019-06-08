@@ -20,7 +20,7 @@ class Followers extends Route {
         "totalItems" => $user->subscribers()->count(),
         "partOf" => "$user_id/followers",
         "orderedItems" =>  $user->subscribers()->get()->map(function($subscriber){
-          return $subscriber->url;
+          return $subscriber->actor->url;
         }),
         "id" => "$user_id/followers?page=1"
       ]

@@ -60,7 +60,8 @@ class Follow extends Route {
         'header'=>"Accept: application/json\r\n"
       )
     );
-    $actor = json_decode(file_get_contents($actor_url, false, stream_context_create($get_opts)), true);
+    $res = file_get_contents($actor_url, false, stream_context_create($get_opts));
+    $actor = json_decode($res, true);
 
     if(!isset($webfinger)) {
       $webfinger = $actor['preferredUsername'] . '@' . parse_url($actor_url, PHP_URL_HOST);
@@ -72,17 +73,20 @@ class Follow extends Route {
       return;
     }
 
+    $actor_model = \Art\models\Actor::fromUrl(http_url($actor['id'], $use_http), $actor);
+    $actor_model->username = $webfinger;
+    $actor_model->inbox = $inbox;
+    $actor_model->save();
+
     $follow = new \Art\models\Following();
-    $follow->url = http_url($actor['id'], $use_http);
-    $follow->inbox = $inbox;
     $follow->user_id = $this->user->id;
-    $follow->username = $webfinger;
     $follow->accepted = 0;
+    $follow->remote_actor_id = $actor_model->id;
     $follow->save();
 
     try {
       $this->user->send($this->user->activity("Follow", https_url($actor_url)), $inbox, $actor_url);
-    } catch(Exception $e) {
+    } catch(\GuzzleHttp\Exception\ClientException $e) {
       return "An error occurred trying to follow $webfinger; ". $e->getMessage();
     }
 

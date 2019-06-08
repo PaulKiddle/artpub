@@ -52,13 +52,14 @@ class Inbox extends Route {
     $data = json_decode($json, true);
     $type = strtolower($data['type']);
 
+    $act = \Art\models\Actor::fromUrl($actor['id'], $actor);
+
     switch($type){
       case 'follow':
         $user->send($user->activity("Accept", $data), $actor['inbox'], $actor['id']);
         $sub = new \Art\models\Subscriber();
-        $sub->url = $actor['id'];
-        $sub->inbox = $actor['inbox'];
         $sub->user_id = $user->id;
+        $sub->remote_actor_id = $act->id;
         try {
           $sub->save();
         } catch (\Illuminate\Database\QueryException  $e) {
@@ -68,21 +69,20 @@ class Inbox extends Route {
         $user->addNote(
           $actor['preferredUsername'] . ' followed you',
           $actor['url'],
-          $actor['id']
+          $act->id
         );
         break;
       case 'accept':
-        $follow = $user->following->where('url', $actor['id'])->first();
+        $follow = $user->following->where('remote_actor_id', $act->id)->first();
         $follow->accepted = 1;
         $follow->save();
         break;
       case 'create':
-        // error_log(json_encode($data['object']));
-        $following = $user->following->where('url', $actor['id'])->first();
+        $following = $user->following->where('remote_actor_id', $act->id)->first();
         $user->addNote(
           'New ' . $data['object']['type'] . ' created: ' . $data['object']['content'],
           $data['object']['url'] ?? $data['object']['id'],
-          $data['object']['attributedTo']
+          \Art\models\Actor::fromUrl($data['object']['attributedTo'])->id
         );
         break;
     }

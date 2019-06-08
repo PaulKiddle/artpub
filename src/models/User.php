@@ -15,6 +15,7 @@ class User extends \Illuminate\Database\Eloquent\Model {
   }
 
   public function subscribers(){
+    // Has many through?
     return $this->hasMany('Art\models\Subscriber', 'user_id');
   }
 
@@ -127,16 +128,16 @@ class User extends \Illuminate\Database\Eloquent\Model {
 
   public function broadcast($activity) {
     foreach($this->subscribers as $subscriber) {
-      $this->send($activity, $subscriber->inbox, $subscriber->url);
+      $this->send($activity, $subscriber->actor->inbox, $subscriber->actor->url);
     }
   }
 
-  public function addNote($message, $url, $actor_url){
+  public function addNote($message, $url, $actor_id){
     $purifier = new \HTMLPurifier();
     $create = new \Art\models\Inbox();
     $create->message = $purifier->purify(substr($message, 0, 1000));
     $create->url = $url;
-    $create->actor_url = $actor_url;
+    $create->remote_actor_id = $actor_id;
     $create->user_id = $this->id;
     $create->save();
     return $create;
