@@ -1,7 +1,7 @@
 <?php
 
 function note($note) {
-  return <<<END
+  return <<<HTML
     <style>
       .Note {
         display:flex;
@@ -28,11 +28,14 @@ function note($note) {
       </div>
       <div>
         <a href='$note->url'>Link</a><br>
-        <a href='?delete={$note->id}'>x</a>
+        <form method="post">
+          <input type="hidden" name="submit" value="ok">
+          <button name="delete" value="{$note->id}">x</button>
+        </form>
       </div>
     </li>
-    END;
+    HTML;
 /*
-END;
+HTML;
 //*/
 }
