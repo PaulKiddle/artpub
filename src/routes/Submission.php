@@ -1,7 +1,7 @@
 <?php
-namespace Art;
+namespace Art\routes;
 
-require('components/page.php');
+require(__DIR__.'/../components/page.php');
 
 class Submission extends Route {
   function renderImage($file){

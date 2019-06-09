@@ -1,5 +1,5 @@
 <?php
-namespace Art;
+namespace Art\routes;
 
 class Input {
 

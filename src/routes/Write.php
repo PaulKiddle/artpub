@@ -1,8 +1,8 @@
 <?php
 
-namespace Art;
+namespace Art\routes;
 
-require('components/page.php');
+require(__DIR__.'/../components/page.php');
 
 class Write extends Route {
   function __invoke ($request, $response, $args) {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Art;
+namespace Art\routes;
 
-require('components/page.php');
-require('components/note.php');
+require(__DIR__.'/../components/page.php');
+require(__DIR__.'/../components/note.php');
 
 class Notes extends Route {
   function __invoke ($request, $response, $args) {

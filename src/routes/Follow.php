@@ -1,8 +1,8 @@
 <?php
 
-namespace Art;
+namespace Art\routes;
 
-require('components/page.php');
+require(__DIR__.'/../components/page.php');
 
 function http_url($url, $use_http) {
   if(!$use_http) {

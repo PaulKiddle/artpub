@@ -1,7 +1,7 @@
 <?php
-namespace Art;
+namespace Art\routes;
 
-require('components/thumb.php');
+require(__DIR__.'/../components/thumb.php');
 
 function verify_sig($req){
   $signature = $req->getHeaderLine('signature');

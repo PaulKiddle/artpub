@@ -1,5 +1,5 @@
 <?php
-namespace Art;
+namespace Art\routes;
 
 class Webfinger extends Route {
   function __invoke ($request, $response, $args) {

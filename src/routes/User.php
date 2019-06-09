@@ -1,5 +1,5 @@
 <?php
-namespace Art;
+namespace Art\routes;
 
 class User extends Route {
   function view ($req, $res, $args) {
@@ -15,12 +15,18 @@ class User extends Route {
       "id" => $user_id,
       "type" => "Person",
       "preferredUsername" => $username,
+      "name" => $user->display_name,
+      "summary" => $user->summary,
       "inbox" => "$user_id/inbox",
       "followers" => "$user_id/followers",
       "publicKey" => [
         "id" => "$user_id#main-key",
         "owner" => $user_id,
         "publicKeyPem" => $user->public_key
+      ],
+      "icon" => [
+        "type" => "Image",
+        "url" => $user->avatar_url
       ]
     );
 

@@ -1,9 +1,9 @@
 <?php
-namespace Art;
+namespace Art\routes;
 
-require('components/page.php');
-require('components/gallery.php');
-require('components/thumb.php');
+require(__DIR__.'/../components/page.php');
+require(__DIR__.'/../components/gallery.php');
+require(__DIR__.'/../components/thumb.php');
 
 class Gallery extends Route {
   function view ($req, $res, $args) {
@@ -12,7 +12,7 @@ class Gallery extends Route {
     $output = [];
 
     foreach($user->submissions()->get() as $submission) {
-      $this->container->router;
+      $router = $this->container->router;
       $file = $submission->files()->first();
       $artist = $submission->artist()->first();
       $author = [

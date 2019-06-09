@@ -2,7 +2,7 @@
 
 function menu($user) {
   $items = "";
-  $username = $user->username ? "Welcome, $user->username!" : '';
+  $username = isset($user->username) ? "Welcome, <a class='Menu__link' href='/settings'>$user->username</a>!" : '';
   $numNotes = $username ? $user->inbox()->count() : 0;
   if ($numNotes > 0) {
     $numNotes = " ($numNotes)";

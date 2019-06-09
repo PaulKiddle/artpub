@@ -1,10 +1,10 @@
 <?php
 
-namespace Art;
+namespace Art\routes;
 
-require('components/thumb.php');
-require('components/gallery.php');
-require('components/page.php');
+require(__DIR__.'/../components/thumb.php');
+require(__DIR__.'/../components/gallery.php');
+require(__DIR__.'/../components/page.php');
 
 class Index extends Route {
   function submit ($request, $response) {

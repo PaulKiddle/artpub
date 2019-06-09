@@ -1,8 +1,8 @@
 <?php
 
-namespace Art;
+namespace Art\routes;
 
-require('components/page.php');
+require(__DIR__.'/../components/page.php');
 
 class Upload extends Route {
   function __invoke ($request, $response, $args) {

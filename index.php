@@ -38,22 +38,23 @@ $container['session'] = function ($c) {
   return new \SlimSession\Helper;
 };
 
-$app->get('/.well-known/webfinger', \Art\Webfinger::class);
+$app->get('/.well-known/webfinger', \Art\routes\Webfinger::class);
 
-$app->get('/user/{id}', \Art\User::class);
+$app->get('/user/{id}', \Art\routes\User::class);
 
-$app->get('/user/{id}/gallery', \Art\Gallery::class)->setName('gallery');
-$app->post('/user/{id}/inbox', \Art\Inbox::class);
-$app->get('/user/{id}/followers', \Art\Followers::class);
-$app->get('/submission/{id}[/]', \Art\Submission::class)->setName('submission');
-$app->get('/journal/{id}[/]', \Art\Journal::class)->setName('journal');
+$app->get('/user/{id}/gallery', \Art\routes\Gallery::class)->setName('gallery');
+$app->post('/user/{id}/inbox', \Art\routes\Inbox::class);
+$app->get('/user/{id}/followers', \Art\routes\Followers::class);
+$app->get('/submission/{id}[/]', \Art\routes\Submission::class)->setName('submission');
+$app->get('/journal/{id}[/]', \Art\routes\Journal::class)->setName('journal');
 
-$app->any('/upload', \Art\Upload::class);
-$app->any('/write', \Art\Write::class);
-$app->any('/follow', \Art\Follow::class);
-$app->any('/notes', \Art\Notes::class);
+$app->any('/settings', \Art\routes\Settings::class);
+$app->any('/upload', \Art\routes\Upload::class);
+$app->any('/write', \Art\routes\Write::class);
+$app->any('/follow', \Art\routes\Follow::class);
+$app->any('/notes', \Art\routes\Notes::class);
 
-$app->any('/', \Art\Index::class);
+$app->any('/', \Art\routes\Index::class);
 
 
 $app->get('/uploads/[{path:.*}]', function ($request, $response) {

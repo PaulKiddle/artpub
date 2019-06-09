@@ -1,5 +1,5 @@
 <?php
-namespace Art;
+namespace Art\routes;
 
 class Followers extends Route {
   function view ($req, $res, $args) {
