@@ -14,6 +14,9 @@ class Upload extends Route {
   }
 
   function submit($request, $response) {
+    $Parsedown = new \Parsedown();
+    $Parsedown->setSafeMode(true);
+
     $files = $request->getUploadedFiles()['file'];
 
     $mimeType0 = mime_content_type($_FILES['file']['tmp_name'][0]);
@@ -23,7 +26,7 @@ class Upload extends Route {
     $sub->author_id = $this->user['id'];
     $sub->title = $_POST['title'];
     $sub->type = $type0;
-    $sub->description = $_POST['description'];
+    $sub->description = $Parsedown->text($_POST['description']);
     $saved = $sub->save();
 
     foreach($files as $ix => $file) {

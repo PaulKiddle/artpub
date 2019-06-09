@@ -14,10 +14,13 @@ class Write extends Route {
   }
 
   function submit($request, $response) {
+    $Parsedown = new \Parsedown();
+    $Parsedown->setSafeMode(true);
+
     $journal = new \Art\models\Journal();
     $journal->author_id = $this->user['id'];
     $journal->title = $_POST['title'];
-    $journal->content = $_POST['content'];
+    $journal->content = $Parsedown->text($_POST['content']);
     $saved = $journal->save();
 
     if ($saved) {
